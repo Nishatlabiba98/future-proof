@@ -5,6 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import java.util.Scanner; 
+import java.time.LocalDateTime;             // claude. assisted imported classes
+import java.time.format.DateTimeFormatter;
 
 /**
  * Future Proof Notes Manager - Version One (CLI)
@@ -21,7 +24,7 @@ import java.util.stream.Stream;
 public class CradleNotes {
 
     private static final Path NOTES_DIR = Path.of(System.getProperty("user.home"), ".notes");
-
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     /**
      * Initialize the notes application.
      */
@@ -174,6 +177,7 @@ public class CradleNotes {
         if (!author.isEmpty()) System.out.println("Author:   " + author);
 
         // Print content
+        Path filePath = resolveNotePath(filename);
         System.out.println("-".repeat(60));
         for (int i = contentStart; i < lines.size(); i++) {
             System.out.println(lines.get(i));
@@ -185,7 +189,7 @@ public class CradleNotes {
     }
 }
 
-   private static void String createNote(String[] args) {
+   private static void createNote(String[] args) {
     if (args.length < 3) {
         System.err.println("Error: please say something.");// this is what my notes will say to you if you fail to give enough information to create a simple note!!
         System.err.println("Usage: java CradleNotes create \"Title\" \"Content\"");
@@ -256,8 +260,46 @@ private static void deleteNote(String[]args) {
     } catch (IOException e) {
         System.err.println("Error deleting note: " + e.getMessage());
     }
+} else {
+    System.out.println("Deletion cancelled.");
 }
+}
+private static void editNote(String[] args) {
+    if (args.length < 3) {
+        System.err.println("Error: please provide a filename and new content.");
+        System.err.println("Usage: java CradleNotes edit <filename> \"New content\"");
+        return;
+    }
+    String filename = args[1];
+    String newContent = args[2];
+    Path filePath = resolveNotePath(filename);
+    if (!Files.exists(filePath)) {
+        System.err.println("Error: Note not found: " + filename);
+        System.err.println("Tip:   run 'java CradleNotes list' to see filenames.");
+        return;
+    }
+try {
+    Map<String, String> meta = parseYamlHeader(filePath);
+    //update timestamp for new note, as in new timestamp
+    String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+    String fileContent = String.format("""
+---
+title: %s
+created: %s
+modified: %s
+tags: %s
+author: %s
+---
 
+%s
+
+        """, meta.getOrDefault("title", ""), meta.getOrDefault("created", now), now, meta.getOrDefault("tags", ""), meta.getOrDefault("author", ""), newContent);
+    Files.writeString(filePath, fileContent);
+    System.out.println("Note updated: " + filename);
+} catch (IOException e) {
+    System.err.println("Error updating note: " + e.getMessage());
+}
+}
 
     /**
      * Parse YAML front matter from a note file.
@@ -351,6 +393,16 @@ private static void deleteNote(String[]args) {
 
             case "read" : {readNote(args);
                 finish(0);}
+
+            case "create" : {createNote(args);
+                finish(0);}
+
+            case "delete" : {deleteNote(args);
+                finish(0);}
+
+            case "edit" : {editNote(args);
+                finish(0);}
+
             default:
                 System.err.println("Error: Unknown command '" + command + "'");
                 System.err.println("Try 'java Notes1 help' for more information.");
@@ -358,4 +410,4 @@ private static void deleteNote(String[]args) {
         }
     }
 }
-}
+
