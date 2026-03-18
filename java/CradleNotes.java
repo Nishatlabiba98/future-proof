@@ -185,6 +185,28 @@ public class CradleNotes {
     }
 }
 
+   private static void String createNote(String[] args) {
+    if (args.length < 3) {
+        System.err.println("Error: please say something.");// this is what my notes will say to you if you fail to give enough information to create a simple note!!
+        System.err.println("Usage: java CradleNotes create \"Title\" \"Content\"");
+        return;
+    }
+    String title = args[1];
+    String content = args[2];
+
+if (title.isBlank()) {
+    System.err.println("Error: Title cannot be blank.");
+    return;
+}
+String safeTitle = title.toLowerCase()
+.replaceAll("\\s+", "-") // replace space w dash
+.replaceAll("[^a-z0-9\\-]", ""); // remove non-alphanumeric
+.replaceAll("-{2,}", "-");
+
+
+
+   }
+
 
     /**
      * Parse YAML front matter from a note file.
