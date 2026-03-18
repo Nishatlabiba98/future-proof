@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  *     mkdir -p ~/.notes/notes
  *     cp test-notes/*.md ~/.notes/notes/
  */
-public class Notes1 {
+public class CradleNotes {
 
     private static final Path NOTES_DIR = Path.of(System.getProperty("user.home"), ".notes");
 
@@ -43,9 +43,9 @@ public class Notes1 {
 // to go with Kris's list i copied this.
     private static void showHelp() {
         String helpText = String.format("""
-                Future Proof Notes Manager v0.0
+                CradleNotes - Your Personal Notes Manager v0.1
 
-                Usage: java Notes0 [command]
+                Usage: java CradleNotes [command]
 
                 Available commands:
                 help    - Display this help information
