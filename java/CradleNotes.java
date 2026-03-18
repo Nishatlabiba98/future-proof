@@ -1,13 +1,13 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;             // claude. assisted imported classes
 import java.util.stream.Stream;
-import java.util.Scanner; 
-import java.time.LocalDateTime;             // claude. assisted imported classes
-import java.time.format.DateTimeFormatter;
 
 /**
  * Future Proof Notes Manager - Version One (CLI)
@@ -130,8 +130,8 @@ public class CradleNotes {
     private static void readNote(String[] args) {
     if (args.length < 2) { //everything added after java cradlenotes , its 2 so its has to be more than 2
         System.err.println("Error: No filename provided.");
-        System.err.println("Usage: java Notes1 read <filename>");
-        System.err.println("Tip:   run 'java Notes1 list' to see filenames.");
+        System.err.println("Usage: java CradleNotes read <filename>");
+        System.err.println("Tip:   run 'java CradleNotes list' to see filenames.");
         return;
     }
 
@@ -143,7 +143,7 @@ public class CradleNotes {
 
     if (!Files.exists(filePath)) {
         System.err.println("Error: Note not found: " + filename);
-        System.err.println("Tip:   run 'java Notes1 list' to see available notes.");
+        System.err.println("Tip:   run 'java CradleNotes list' to see available notes.");
         return;
     }
 
@@ -177,7 +177,7 @@ public class CradleNotes {
         if (!author.isEmpty()) System.out.println("Author:   " + author);
 
         // Print content
-        Path filePath = resolveNotePath(filename);
+        
         System.out.println("-".repeat(60));
         for (int i = contentStart; i < lines.size(); i++) {
             System.out.println(lines.get(i));
@@ -240,7 +240,6 @@ private static void deleteNote(String[]args) {
     }
     String filename = args[1];
     Path filePath = resolveNotePath(filename);
-    
 
     if (!Files.exists(filePath)) {
         System.err.println("Error: Note not found: " + filename);
@@ -351,7 +350,11 @@ author: %s
         return metadata;
     }
 
-
+    private static Path resolveNotePath(String filename) {
+        Path notesSubdir = NOTES_DIR.resolve("notes");
+        Path searchDir = Files.exists(notesSubdir) ? notesSubdir : NOTES_DIR;
+        return searchDir.resolve(filename);
+    }
 
 
 
@@ -373,8 +376,8 @@ author: %s
         if (args.length < 1) {
             // No command provided
             System.err.println("Error: No command provided.");
-            System.err.println("Usage: java Notes1 [command]");
-            System.err.println("Try 'java Notes1 help' for more information.");
+            System.err.println("Usage: java CradleNotes [command]");
+            System.err.println("Try 'java CradleNotes help' for more information.");
             finish(1);
             return; // added return to avoid unreachable code warning
         }
@@ -405,7 +408,7 @@ author: %s
 
             default:
                 System.err.println("Error: Unknown command '" + command + "'");
-                System.err.println("Try 'java Notes1 help' for more information.");
+                System.err.println("Try 'java CradleNotes help' for more information.");
                 finish(1);
         }
     }
