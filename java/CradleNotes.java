@@ -125,7 +125,7 @@ public class CradleNotes {
     }
 
     private static void readNote(String[] args) {
-    if (args.length < 2) {
+    if (args.length < 2) { //everything added after java cradlenotes , its 2 so its has to be more than 2
         System.err.println("Error: No filename provided.");
         System.err.println("Usage: java Notes1 read <filename>");
         System.err.println("Tip:   run 'java Notes1 list' to see filenames.");

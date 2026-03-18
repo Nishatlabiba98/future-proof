@@ -1,51 +1,26 @@
 ---
-title: Data Structures Overview
-created: 2025-05-18T09:15:00Z
-modified: 2025-05-20T14:30:00Z
+title: how mom brain works when you paid it with problem solving
+created: march 17th , 2027
+modified: march 18th, 2027
 tags: [coursework, computer science, algorithms]
-author: Student001
-status: complete
-priority: 2
+author: nishat
+status: in progress
+priority: "!"
 ---
 
-# Data Structures Overview
+# mom brain overview
 
-## Arrays
-- Contiguous memory allocation
-- O(1) access time
-- Fixed size in many languages
-- Dynamic arrays (e.g., ArrayList in Java, List in C#) can resize automatically
+debugging- why is the toddler crying(if i can find out i can solve this and get to what Kris wants me to do haha)
+        try some tests- hungry? tired? thirsty? bored?
 
-## Linked Lists
-- Non-contiguous memory allocation
-- O(n) access time
-- O(1) insertion/deletion at known positions
-- Types: Singly linked, Doubly linked, Circular
+version control- let's not hit buddy, i can see you are upset but we can talk through this and resolve.
 
-## Stacks
-- LIFO (Last In, First Out) principle
-- Operations: push, pop, peek
-- Applications: Function calls, Undo mechanisms, Expression evaluation
+agile practice- get morning routine done together, help my toddler if i am done(when i did this one day he helped me when he was done first)
 
-## Queues
-- FIFO (First In, First Out) principle
-- Operations: enqueue, dequeue, peek
-- Applications: Job scheduling, Print spooling, Message queues
+documentation - nap schedule, snack preferance, sitter piskup schedule.
 
-## Hash Tables
-- Key-value pairs
-- O(1) average case for insertion, deletion, lookup
-- Collision resolution: Chaining, Open addressing
-- Load factor affects performance
+error handling - we dont let apps crash so why allow toddlers meltdown spiral- catch it early, prepare, if it goes wrong fix it.
 
-## Trees
-- Hierarchical structure
-- Binary trees, AVL trees, Red-Black trees, B-trees
-- Tree traversals: Inorder, Preorder, Postorder, Level order
+tech debt/ toy debt - implement  5 minute clean ups through the day to make eod cleanup easy. every unpicked toy is like an assignment build up for the end of the week.
 
-### Study Questions
-1. Compare and contrast arrays vs. linked lists
-2. When would you choose a hash table over a binary search tree?
-3. Implement a stack using arrays and linked lists
-
-**Note to self**: Prepare implementation examples for midterm project
+system design- always have snack and diaper bag ready to go , redundancy is key!!!
