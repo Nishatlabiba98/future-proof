@@ -227,6 +227,37 @@ try {
 
 //delete
 
+private static void deleteNote(String[]args) {
+    if (args.length < 2) {
+        System.err.println("Error: No filename provided.");
+        System.err.println("Usage: java CradleNotes delete <filename>");
+        System.err.println("Tip:   run 'java CradleNotes list' to see filenames.");
+        return;
+    }
+    String filename = args[1];
+    Path filePath = resolveNotePath(filename);
+    
+
+    if (!Files.exists(filePath)) {
+        System.err.println("Error: Note not found: " + filename);
+        System.err.println("Tip:   run 'java CradleNotes list' to see available notes.");
+        return;
+    }
+    System.out.println("Are you sure you want to delete the note '" + filename + "'? (yes/no)");
+    Scanner scanner = new Scanner(System.in);
+    String answer = scanner.nextLine().trim().toLowerCase();
+
+
+    if (answer.equals("yes")) {
+
+    try {
+        Files.delete(filePath);
+        System.out.println("Note deleted: " + filename);
+    } catch (IOException e) {
+        System.err.println("Error deleting note: " + e.getMessage());
+    }
+}
+
 
     /**
      * Parse YAML front matter from a note file.
