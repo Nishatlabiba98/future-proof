@@ -29,6 +29,15 @@ public class Notes1 {
         // Define the notes directory in HOME
         // Check if notes directory exists
         // For CLI version, we don't automatically create it
+        try {
+            if (!Files.exists(NOTES_DIR)) {
+                Files.createDirectories(NOTES_DIR);
+                System.out.println("Created notes directory: " + NOTES_DIR);
+            }
+        } catch (IOException e) {
+            System.err.println("Error creating notes directory: " + e.getMessage());
+            System.exit(1);
+        }
         return NOTES_DIR;
     }
 
