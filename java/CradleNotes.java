@@ -199,13 +199,33 @@ if (title.isBlank()) {
     return;
 }
 String safeTitle = title.toLowerCase()
-.replaceAll("\\s+", "-") // replace space w dash
-.replaceAll("[^a-z0-9\\-]", ""); // remove non-alphanumeric
-.replaceAll("-{2,}", "-");
+.replaceAll("\\s+", "-")
+.replaceAll("[^a-z0-9\\-]", "") + ".md";
 
+String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+String fileContent = String.format("""
+---
+title: %s
+created: %s
+---
 
+%s
 
-   }
+        """, title, now, content);
+try {
+    Path notesSubdir =NOTES_DIR.resolve("notes");
+    if (!Files.exists(notesSubdir)) {
+        Files.createDirectories(notesSubdir);
+    }
+    Path filePath = notesSubdir.resolve(safeTitle);
+    Files.writeString(filePath, fileContent);
+    System.out.println("Note created: " + safeTitle);
+} catch (Exception e) {
+    System.out.println("Error creating note: " + e.getMessage());
+    }
+}
+
+//delete
 
 
     /**
@@ -260,7 +280,7 @@ String safeTitle = title.toLowerCase()
 
 
 
-  
+
 
     /**
      * Clean up and exit the application.
@@ -306,4 +326,5 @@ String safeTitle = title.toLowerCase()
                 finish(1);
         }
     }
+}
 }

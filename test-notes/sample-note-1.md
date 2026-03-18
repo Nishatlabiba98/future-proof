@@ -2,7 +2,7 @@
 title: how mom brain works when you paid it with problem solving
 created: march 17th , 2027
 modified: march 18th, 2027
-tags: [coursework, computer science, algorithms]
+tags: [debugging, agile practices, tech debt, error handling]
 author: nishat
 status: in progress
 priority: "!"
