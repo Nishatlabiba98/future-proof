@@ -61,21 +61,26 @@ if (tagFilter != null && !tags.toLowerCase().contains(tagFilter.toLowerCase())) 
 System.out.println(" File  : " + file.getFileName());
             System.out.println(" Title : " + title);
             System.out.println(" Modified: " + modified);
-            System.out.println(" Tags  : " + tags);
-            System.out.println(" Author: " + author);
-            System.out.println(" Status: " + status);
+            if (!tags.isEmpty()) {
+                System.out.println(" Tags  : " + tags);
+            }
+            if (!author.isEmpty()) {
+                System.out.println(" Author: " + author);
+            }
+            if (!status.isEmpty()) {
+                System.out.println(" Status: " + status);
+            }
             System.out.println();
             count++;
         } catch (Exception e) {
             System.out.println("  (could not read: " + file.getFileName() + ")");
         }
 
-if(count == 0 && tagFilter != null) {
-        System.out.println("No notes found with tag: " + tagFilter);
+if (count ==0 && tagFilter != null) {
+    System.out.println("No notes found with tag: " + tagFilter);
 } else {
-        System.out.println("Total notes listed: " + count);
-}
-    }
+    System.out.println(count + " note(s) found.");
+  }
 }
 
     /**
@@ -115,4 +120,5 @@ if(count == 0 && tagFilter != null) {
                 finish(1);
         }
     }
+}
 }
