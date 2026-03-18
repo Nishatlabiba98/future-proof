@@ -25,7 +25,7 @@ https://zcw.guru/kristofer/javapygitignore
 **Why future-proofing matters:**
 When you write software, you're not just solving today's problem - you're creating something that will likely need to change. User needs evolve, new technologies emerge, and business requirements shift. Future-proof code makes these inevitable changes easier and less expensive.
 
-**Key principles for future-proof software:**
+**Key principles for future-proof softwardee:**
 
 **Modularity and separation of concerns** - Break your code into distinct, focused pieces that do one thing well. If you need to change how data is stored, you shouldn't have to rewrite your user interface code too. If you store your notes in text files now, but a database in the next version, how do you make sure you can move amongst different storage tech?
 

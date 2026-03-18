@@ -1,5 +1,6 @@
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Future Proof Notes Manager - Version Zero (CLI)
@@ -30,12 +31,52 @@ public class Notes0 {
                 Usage: java Notes0 [command]
 
                 Available commands:
-                  help    - Display this help information
+                help    - Display this help information
 
                 Notes directory: %s
                 """, NOTES_DIR);
         System.out.println(helpText.trim());
     }
+public static void showList(List<Path> noteFiles, String tagFilter) {
+    if (noteFiles.isEmpty()) {
+        System.out.println("No notes found.");
+        return;
+    }
+    int count = 0;
+    System.out.println("\\nYour Notes");
+    System.out.println("=".repeat(50));
+
+    for (Path file : noteFiles) {
+        try {
+            Map<String, String> meta = loadMetadata(file);
+            String title = meta.getOrDefault("title", "Untitled");
+            String modified = meta.getOrDefault("modified", "Unknown");
+            String tags = meta.getOrDefault("tags", "");
+            String author = meta.getOrDefault("author", "Unknown");
+            String status = meta.getOrDefault("status", "Unknown");
+
+if (tagFilter != null && !tags.toLowerCase().contains(tagFilter.toLowerCase())) {
+                continue;
+            }
+System.out.println(" File  : " + file.getFileName());
+            System.out.println(" Title : " + title);
+            System.out.println(" Modified: " + modified);
+            System.out.println(" Tags  : " + tags);
+            System.out.println(" Author: " + author);
+            System.out.println(" Status: " + status);
+            System.out.println();
+            count++;
+        } catch (Exception e) {
+            System.out.println("  (could not read: " + file.getFileName() + ")");
+        }
+
+if(count == 0 && tagFilter != null) {
+        System.out.println("No notes found with tag: " + tagFilter);
+} else {
+        System.out.println("Total notes listed: " + count);
+}
+    }
+}
 
     /**
      * Clean up and exit the application.
