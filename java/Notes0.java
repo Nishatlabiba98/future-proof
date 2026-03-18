@@ -1,7 +1,10 @@
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Stream;
+import java.nio.file.attribute.BasicFileAttributes;
 /**
  * Future Proof Notes Manager - Version Zero (CLI)
  * A personal notes manager using text files with YAML headers.
@@ -37,62 +40,73 @@ public class Notes0 {
                 """, NOTES_DIR);
         System.out.println(helpText.trim());
     }
-public static void showList(List<Path> noteFiles, String tagFilter) {
-    if (noteFiles.isEmpty()) {
-        System.out.println("No notes found.");
-        return;
-    }
-    int count = 0;
-    System.out.println("\\nYour Notes");
-    System.out.println("=".repeat(50));
 
-    for (Path file : noteFiles) {
-        try {
-            Map<String, String> meta = loadMetadata(file);
-            String title = meta.getOrDefault("title", "Untitled");
-            String modified = meta.getOrDefault("modified", "Unknown");
-            String tags = meta.getOrDefault("tags", "");
-            String author = meta.getOrDefault("author", "Unknown");
-            String status = meta.getOrDefault("status", "Unknown");
-
-if (tagFilter != null && !tags.toLowerCase().contains(tagFilter.toLowerCase())) {
-                continue;
-            }
-System.out.println(" File  : " + file.getFileName());
-            System.out.println(" Title : " + title);
-            System.out.println(" Modified: " + modified);
-            if (!tags.isEmpty()) {
-                System.out.println(" Tags  : " + tags);
-            }
-            if (!author.isEmpty()) {
-                System.out.println(" Author: " + author);
-            }
-            if (!status.isEmpty()) {
-                System.out.println(" Status: " + status);
-            }
-            System.out.println();
-            count++;
-        } catch (Exception e) {
-            System.out.println("  (could not read: " + file.getFileName() + ")");
+        private static boolean listNotes(Path notesDir) {
+        // Check if notes directory exists
+        if (!Files.exists(notesDir)) {
+            System.err.println("Error: Notes directory does not exist: " + notesDir);
+            System.err.println("Create it with: mkdir -p ~/.notes/notes");
+            System.err.println("Then copy test notes: cp test-notes/*.md ~/.notes/notes/");
+            return false;
         }
 
-if (count ==0 && tagFilter != null) {
-    System.out.println("No notes found with tag: " + tagFilter);
-} else {
-    System.out.println(count + " note(s) found.");
-  }
-}
+        // Look for notes in the notes directory (or directly in .notes)
+        Path notesSubdir = notesDir.resolve("notes");
+        Path searchDir = Files.exists(notesSubdir) ? notesSubdir : notesDir;
 
-    /**
-     * Clean up and exit the application.
-     */
-    private static void finish(int exitCode) {
+        // Find all note files (*.md, *.note, *.txt)
+        List<Path> noteFiles;
+        try (Stream<Path> paths = Files.walk(searchDir, 1)) {
+            noteFiles = paths
+                    .filter(Files::isRegularFile)
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        return name.endsWith(".md") || name.endsWith(".note") || name.endsWith(".txt");
+                    })
+                    .sorted()
+                    .toList();
+        } catch (IOException e) {
+            System.err.println("Error reading notes directory: " + e.getMessage());
+            return false;
+        }
+
+        if (noteFiles.isEmpty()) {
+            System.out.println("No notes found in " + notesDir);
+            System.err.println("Copy test notes with: cp test-notes/*.md ~/.notes/");
+            return true;
+        }
+
+        // Parse and display notes
+        System.out.println("Notes in " + notesDir + ":");
+        System.out.println("=".repeat(60));
+
+        for (Path noteFile : noteFiles) {
+            // this should probably be a private method to be re-used
+            Map<String, String> metadata = parseYamlHeader(noteFile);
+            String title = metadata.getOrDefault("title", noteFile.getFileName().toString());
+            String created = metadata.getOrDefault("created", "N/A");
+            String tags = metadata.getOrDefault("tags", "");
+
+            System.out.println("\n" + noteFile.getFileName());
+            System.out.println("  Title: " + title);
+            if (!created.equals("N/A")) {
+                System.out.println("  Created: " + created);
+            }
+            if (!tags.isEmpty()) {
+                System.out.println("  Tags: " + tags);
+            }
+        }
+
+        System.out.println("\n" + noteFiles.size() + " note(s) found.");
+        return true;
+    }
+
+
+private static void finish(int exitCode) {
         System.exit(exitCode);
     }
 
-    /**
-     * Main entry point for the notes CLI application.
-     */
+
     public static void main(String[] args) {
         // Setup
         Path notesDir = setup();
@@ -120,5 +134,4 @@ if (count ==0 && tagFilter != null) {
                 finish(1);
         }
     }
-}
 }
