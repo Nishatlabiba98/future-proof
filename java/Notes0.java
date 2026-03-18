@@ -35,8 +35,13 @@ public class Notes0 {
 
                 Available commands:
                 help    - Display this help information
+                list    - List all notes in the notes
+                read <filename> - Read a specific note
 
                 Notes directory: %s
+                Setup : 
+                mkdir -p ~/.notes/notes
+                cp test-notes/*.md ~/.notes/notes/
                 """, NOTES_DIR);
         System.out.println(helpText.trim());
     }
