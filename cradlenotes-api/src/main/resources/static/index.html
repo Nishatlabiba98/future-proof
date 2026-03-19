@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CradleNotes</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css" rel="stylesheet">
     <style>
         :root {
             --warm-cream: #faf7f2;
@@ -31,9 +32,10 @@
             min-height: 100vh;
         }
 
+        /* ---- HEADER ---- */
         header {
             background: var(--warm-dark);
-            padding: 24px 40px;
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -52,13 +54,12 @@
 
         .header-left h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 28px;
+            font-size: 24px;
             color: var(--warm-tan);
-            letter-spacing: 0.5px;
         }
 
         .header-left p {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--warm-brown);
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -67,11 +68,12 @@
 
         .header-right { font-size: 13px; color: var(--warm-brown); font-style: italic; }
 
+        /* ---- TOOLBAR ---- */
         .toolbar {
             background: var(--warm-tan);
-            padding: 16px 40px;
+            padding: 12px 20px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
             border-bottom: 1px solid var(--warm-light);
         }
@@ -80,7 +82,7 @@
 
         .search-wrap input {
             width: 100%;
-            padding: 10px 16px 10px 38px;
+            padding: 9px 14px 9px 36px;
             background: var(--warm-cream);
             border: 1px solid var(--warm-light);
             border-radius: 30px;
@@ -95,14 +97,14 @@
         .search-wrap::before {
             content: '⌕';
             position: absolute;
-            left: 14px; top: 50%;
+            left: 12px; top: 50%;
             transform: translateY(-50%);
             font-size: 16px;
             color: var(--text-muted);
         }
 
         .btn-new {
-            padding: 10px 22px;
+            padding: 9px 18px;
             background: var(--warm-dark);
             color: var(--warm-tan);
             border: none;
@@ -115,12 +117,14 @@
 
         .btn-new:hover { background: var(--warm-mid); }
 
+        /* ---- LAYOUT ---- */
         .container {
             display: grid;
             grid-template-columns: 280px 1fr;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 110px);
         }
 
+        /* ---- NOTE LIST ---- */
         .note-list {
             background: var(--warm-tan);
             border-right: 1px solid var(--warm-light);
@@ -129,11 +133,10 @@
         }
 
         .note-item {
-            padding: 16px 20px;
+            padding: 14px 18px;
             cursor: pointer;
             border-bottom: 1px solid rgba(196, 149, 106, 0.15);
             transition: background 0.15s;
-            position: relative;
         }
 
         .note-item:hover { background: rgba(255,255,255,0.4); }
@@ -147,16 +150,15 @@
             font-family: 'Playfair Display', serif;
             font-size: 14px;
             font-weight: 400;
-            color: var(--text-primary);
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .note-item .date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
-        .note-item .tags { font-size: 11px; color: var(--accent-sage); margin-top: 4px; font-style: italic; }
-        .note-item .media-dots { display: flex; gap: 4px; margin-top: 6px; }
+        .note-item .date { font-size: 11px; color: var(--text-muted); }
+        .note-item .tags { font-size: 11px; color: var(--accent-sage); margin-top: 3px; font-style: italic; }
+        .note-item .media-dots { display: flex; gap: 4px; margin-top: 5px; }
         .media-dot { width: 6px; height: 6px; border-radius: 50%; }
         .dot-image    { background: var(--accent-rose); }
         .dot-audio    { background: var(--accent-dusty); }
@@ -164,34 +166,33 @@
         .dot-document { background: var(--warm-brown); }
         .dot-link     { background: var(--accent-blue); }
 
+        /* ---- NOTE DETAIL ---- */
         .note-detail {
             background: var(--warm-cream);
-            padding: 40px 50px;
+            padding: 36px 44px;
             overflow-y: auto;
         }
 
         .note-header {
             border-bottom: 1px solid var(--warm-light);
-            padding-bottom: 20px;
-            margin-bottom: 24px;
+            padding-bottom: 18px;
+            margin-bottom: 22px;
         }
 
         .note-detail h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 400;
-            color: var(--text-primary);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             line-height: 1.3;
         }
 
         .note-meta {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap;
             font-size: 12px;
             color: var(--text-muted);
-            letter-spacing: 0.5px;
         }
 
         .tag-pill {
@@ -208,21 +209,111 @@
         .note-body {
             font-size: 15px;
             line-height: 1.9;
-            color: var(--text-primary);
-            white-space: pre-wrap;
             font-weight: 300;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
-        .media-group { margin-top: 24px; }
+        .note-body h1 { font-family: 'Playfair Display', serif; font-size: 22px; margin: 14px 0 6px; }
+        .note-body h2 { font-family: 'Playfair Display', serif; font-size: 18px; margin: 12px 0 5px; }
+        .note-body ul, .note-body ol { padding-left: 22px; margin: 6px 0; }
+        .note-body li { margin: 3px 0; }
+        .note-body a { color: var(--accent-blue); }
+
+        /* ---- BACK BUTTON (mobile only) ---- */
+        .btn-back {
+            display: none;
+            padding: 7px 16px;
+            background: transparent;
+            border: 1px solid var(--warm-light);
+            color: var(--text-muted);
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            margin-bottom: 16px;
+        }
+
+        /* ---- NOTE ACTIONS ---- */
+        .note-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 7px 14px;
+            background: transparent;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-edit   { border: 1px solid var(--warm-brown); color: var(--warm-brown); }
+        .btn-edit:hover { background: var(--warm-brown); color: white; }
+        .btn-attach { border: 1px solid var(--accent-sage); color: var(--accent-sage); }
+        .btn-attach:hover { background: var(--accent-sage); color: white; }
+        .btn-delete { border: 1px solid var(--accent-rose); color: var(--accent-rose); }
+        .btn-delete:hover { background: var(--accent-rose); color: white; }
+
+        .attach-status { font-size: 12px; color: var(--accent-sage); font-style: italic; margin-bottom: 8px; }
+
+        /* ---- QUILL ---- */
+        .ql-toolbar {
+            background: var(--warm-tan) !important;
+            border: 1px solid var(--warm-light) !important;
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        .ql-container {
+            background: white !important;
+            border: 1px solid var(--warm-light) !important;
+            border-top: none !important;
+            border-radius: 0 0 8px 8px !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 15px !important;
+            min-height: 180px !important;
+        }
+
+        .ql-editor { min-height: 180px; line-height: 1.9; color: var(--text-primary); font-weight: 300; }
+        .ql-editor.ql-blank::before { color: var(--text-muted) !important; font-style: italic !important; }
+
+        .edit-actions { display: flex; gap: 10px; margin-top: 12px; margin-bottom: 20px; }
+
+        .btn-save-edit {
+            padding: 8px 20px;
+            background: var(--warm-dark);
+            color: var(--warm-tan);
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-cancel-edit {
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--warm-light);
+            color: var(--text-muted);
+            border-radius: 20px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+        }
+
+        /* ---- MEDIA ---- */
+        .media-group { margin-top: 20px; }
 
         .media-group-title {
             font-size: 10px;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: var(--text-muted);
-            margin-bottom: 10px;
-            padding-bottom: 6px;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
             border-bottom: 1px solid var(--warm-light);
         }
 
@@ -249,7 +340,7 @@
             background: var(--warm-tan);
             border: 1px solid var(--warm-light);
             border-radius: 8px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             margin-bottom: 8px;
             font-size: 12px;
             color: var(--text-secondary);
@@ -258,98 +349,6 @@
 
         .media-card a { color: #5a8fc4; text-decoration: none; }
         .media-card a:hover { text-decoration: underline; }
-
-        /* ---- NOTE ACTIONS ---- */
-        .note-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            padding: 7px 16px;
-            background: transparent;
-            border-radius: 20px;
-            font-size: 12px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
-        }
-
-        .btn-edit {
-            border: 1px solid var(--warm-brown);
-            color: var(--warm-brown);
-        }
-
-        .btn-edit:hover { background: var(--warm-brown); color: white; }
-
-        .btn-attach {
-            border: 1px solid var(--accent-sage);
-            color: var(--accent-sage);
-        }
-
-        .btn-attach:hover { background: var(--accent-sage); color: white; }
-
-        .btn-delete {
-            border: 1px solid var(--accent-rose);
-            color: var(--accent-rose);
-        }
-
-        .btn-delete:hover { background: var(--accent-rose); color: white; }
-
-        /* ---- EDIT MODE ---- */
-        .edit-area {
-            width: 100%;
-            min-height: 200px;
-            padding: 16px;
-            background: white;
-            border: 1px solid var(--warm-light);
-            border-radius: 8px;
-            font-size: 15px;
-            font-family: 'Inter', sans-serif;
-            font-weight: 300;
-            color: var(--text-primary);
-            line-height: 1.9;
-            resize: vertical;
-            outline: none;
-            margin-bottom: 12px;
-        }
-
-        .edit-area:focus { border-color: var(--warm-brown); }
-
-        .edit-actions { display: flex; gap: 10px; margin-bottom: 20px; }
-
-        .btn-save-edit {
-            padding: 8px 20px;
-            background: var(--warm-dark);
-            color: var(--warm-tan);
-            border: none;
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-
-        .btn-cancel-edit {
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid var(--warm-light);
-            color: var(--text-muted);
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-
-        /* ---- ATTACH PROGRESS ---- */
-        .attach-status {
-            font-size: 12px;
-            color: var(--accent-sage);
-            font-style: italic;
-            margin-top: 4px;
-        }
 
         /* ---- EMPTY STATE ---- */
         .empty-state {
@@ -370,17 +369,11 @@
             margin-bottom: 16px;
         }
 
-        .empty-state h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 18px;
-            font-weight: 400;
-            margin-bottom: 8px;
-        }
-
+        .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; margin-bottom: 8px; }
         .empty-state p { font-size: 13px; font-style: italic; }
         .loading { padding: 30px 20px; text-align: center; color: var(--text-muted); font-style: italic; font-size: 13px; }
 
-        /* ---- MODALS ---- */
+        /* ---- MODAL ---- */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -389,6 +382,7 @@
             z-index: 100;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .modal-overlay.open { display: flex; }
@@ -396,19 +390,21 @@
         .modal {
             background: var(--warm-cream);
             border-radius: 12px;
-            padding: 36px;
-            width: 520px;
-            max-width: 90%;
+            padding: 30px;
+            width: 560px;
+            max-width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal h3 {
             font-family: 'Playfair Display', serif;
             font-size: 22px;
             font-weight: 400;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        .form-group { margin-bottom: 18px; }
+        .form-group { margin-bottom: 16px; }
 
         .form-group label {
             display: block;
@@ -416,13 +412,12 @@
             letter-spacing: 1.5px;
             text-transform: uppercase;
             color: var(--text-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .form-group input,
-        .form-group textarea {
+        .form-group input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 11px 13px;
             background: white;
             border: 1px solid var(--warm-light);
             border-radius: 6px;
@@ -432,15 +427,16 @@
             outline: none;
         }
 
-        .form-group input:focus,
-        .form-group textarea:focus { border-color: var(--warm-brown); }
+        .form-group input:focus { border-color: var(--warm-brown); }
 
-        .form-group textarea { height: 140px; resize: vertical; }
+        #create-editor-container .ql-toolbar { border-radius: 6px 6px 0 0 !important; }
+        #create-editor-container .ql-container { border-radius: 0 0 6px 6px !important; min-height: 120px !important; }
+        #create-editor-container .ql-editor { min-height: 120px; }
 
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
         .btn-cancel {
-            padding: 10px 20px;
+            padding: 9px 18px;
             background: transparent;
             border: 1px solid var(--warm-light);
             color: var(--text-muted);
@@ -451,7 +447,7 @@
         }
 
         .btn-save {
-            padding: 10px 24px;
+            padding: 9px 22px;
             background: var(--warm-dark);
             color: var(--warm-tan);
             border: none;
@@ -468,11 +464,73 @@
             color: var(--warm-light);
             letter-spacing: 8px;
             font-size: 12px;
-            margin: 24px 0;
+            margin: 20px 0;
         }
 
-        /* file input hidden */
         #file-input { display: none; }
+
+        /* ====================================================
+           MOBILE RESPONSIVE — screens under 700px
+        ==================================================== */
+        @media (max-width: 700px) {
+
+            header { padding: 16px 20px; }
+            .header-left h1 { font-size: 20px; }
+            .header-left p { display: none; }
+            .header-right { display: none; }
+
+            .toolbar { padding: 10px 16px; }
+
+            /* Stack list and detail on top of each other */
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr;
+                position: relative;
+            }
+
+            /* List takes full screen by default */
+            .note-list {
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                transition: transform 0.3s ease;
+            }
+
+            /* When a note is open, slide list off screen */
+            .note-list.hidden {
+                transform: translateX(-100%);
+            }
+
+            /* Detail takes full screen */
+            .note-detail {
+                position: absolute;
+                inset: 0;
+                z-index: 5;
+                padding: 20px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            }
+
+            /* Slide detail in when active */
+            .note-detail.visible {
+                transform: translateX(0);
+            }
+
+            /* Show back button on mobile */
+            .btn-back {
+                display: inline-block;
+            }
+
+            .note-detail h2 { font-size: 22px; }
+
+            .note-actions { gap: 6px; }
+
+            .btn-action { padding: 6px 12px; font-size: 11px; }
+
+            .media-image { max-width: 100%; }
+            .media-video { max-width: 100%; }
+            .media-audio { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -505,8 +563,9 @@
     </div>
 </div>
 
-<!-- Hidden file input for media upload -->
-<input type="file" id="file-input" accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt" onchange="uploadMedia()">
+<input type="file" id="file-input"
+       accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt"
+       onchange="uploadMedia()">
 
 <!-- Create Modal -->
 <div class="modal-overlay" id="create-modal">
@@ -518,7 +577,9 @@
         </div>
         <div class="form-group">
             <label>Content</label>
-            <textarea id="new-content" placeholder="Write something..."></textarea>
+            <div id="create-editor-container">
+                <div id="create-editor"></div>
+            </div>
         </div>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
@@ -527,13 +588,54 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script>
-    const API  = 'http://localhost:8080/api/notes';
-    const MEDIA = 'http://localhost:8080/api/media';
+    const API   = 'http://10.0.0.79:8080/api/notes';
+    const MEDIA = 'http://10.0.0.79:8080/api/media';
+
     let allNotes = [];
     let activeFilename = null;
     let activeNote = null;
     let editMode = false;
+    let editQuill = null;
+    let createQuill = null;
+
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline'],
+        [{ 'header': 1 }, { 'header': 2 }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link'],
+        ['clean']
+    ];
+
+    // ---- Mobile helpers ----
+    function isMobile() { return window.innerWidth <= 700; }
+
+    function showDetail() {
+        if (isMobile()) {
+            document.getElementById('note-list').classList.add('hidden');
+            document.getElementById('note-detail').classList.add('visible');
+        }
+    }
+
+    function showList() {
+        if (isMobile()) {
+            document.getElementById('note-list').classList.remove('hidden');
+            document.getElementById('note-detail').classList.remove('visible');
+            activeFilename = null;
+            renderNoteList(allNotes);
+        }
+    }
+
+    // ---- Init create editor ----
+    function initCreateEditor() {
+        if (createQuill) return;
+        createQuill = new Quill('#create-editor', {
+            theme: 'snow',
+            placeholder: 'Write something beautiful...',
+            modules: { toolbar: toolbarOptions }
+        });
+    }
 
     // ---- Load all notes ----
     async function loadNotes() {
@@ -546,7 +648,7 @@
                 n + ' ' + (n === 1 ? 'note' : 'notes');
         } catch (e) {
             document.getElementById('note-list').innerHTML =
-                '<div class="loading">Could not connect.<br>Is Spring Boot running?</div>';
+                '<div class="loading">Could not connect. Is Spring Boot running?</div>';
         }
     }
 
@@ -584,7 +686,9 @@
     async function openNote(filename) {
         activeFilename = filename;
         editMode = false;
+        editQuill = null;
         renderNoteList(allNotes);
+        showDetail();
 
         try {
             const res = await fetch(`${API}/${filename}`);
@@ -648,9 +752,8 @@
             </div>`;
         }
 
-        // Body — edit mode or read mode
         const bodyHTML = editMode
-            ? `<textarea class="edit-area" id="edit-content">${note.content || ''}</textarea>
+            ? `<div id="edit-editor"></div>
                <div class="edit-actions">
                    <button class="btn-save-edit" onclick="saveEdit()">Save changes</button>
                    <button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>
@@ -658,9 +761,10 @@
             : `<div class="note-body">${note.content || ''}</div>`;
 
         document.getElementById('note-detail').innerHTML = `
+            <button class="btn-back" onclick="showList()">← Back</button>
             <div class="note-actions">
                 <button class="btn-action btn-edit" onclick="startEdit()">Edit</button>
-                <button class="btn-action btn-attach" onclick="triggerFileUpload()">Attach media</button>
+                <button class="btn-action btn-attach" onclick="triggerFileUpload()">Attach</button>
                 <button class="btn-action btn-delete" onclick="deleteNote('${note.filename}')">Delete</button>
             </div>
             <div id="attach-status" class="attach-status"></div>
@@ -671,28 +775,34 @@
                     ${note.modified ? `<span>Edited ${formatDate(note.modified)}</span>` : ''}
                     ${note.author ? `<span>${note.author}</span>` : ''}
                 </div>
-                ${tags ? `<div style="margin-top:12px">${tags}</div>` : ''}
+                ${tags ? `<div style="margin-top:10px">${tags}</div>` : ''}
             </div>
             ${bodyHTML}
             ${mediaHTML ? `<div class="divider">· · ·</div>${mediaHTML}` : ''}
         `;
+
+        if (editMode) {
+            editQuill = new Quill('#edit-editor', {
+                theme: 'snow',
+                placeholder: 'Write something...',
+                modules: { toolbar: toolbarOptions }
+            });
+            if (note.content) editQuill.root.innerHTML = note.content;
+        }
     }
 
     // ---- Edit ----
-    function startEdit() {
-        editMode = true;
-        renderNoteDetail(activeNote);
-        document.getElementById('edit-content').focus();
-    }
+    function startEdit() { editMode = true; renderNoteDetail(activeNote); }
 
     function cancelEdit() {
         editMode = false;
+        editQuill = null;
         renderNoteDetail(activeNote);
     }
 
     async function saveEdit() {
-        const newContent = document.getElementById('edit-content').value;
-
+        if (!editQuill) return;
+        const newContent = editQuill.root.innerHTML;
         try {
             await fetch(`${API}/${activeFilename}`, {
                 method: 'PUT',
@@ -700,6 +810,7 @@
                 body: JSON.stringify({ content: newContent })
             });
             editMode = false;
+            editQuill = null;
             await openNote(activeFilename);
             await loadNotes();
         } catch (e) {
@@ -708,9 +819,7 @@
     }
 
     // ---- Attach media ----
-    function triggerFileUpload() {
-        document.getElementById('file-input').click();
-    }
+    function triggerFileUpload() { document.getElementById('file-input').click(); }
 
     async function uploadMedia() {
         const fileInput = document.getElementById('file-input');
@@ -718,7 +827,7 @@
         if (!file || !activeFilename) return;
 
         const status = document.getElementById('attach-status');
-        status.textContent = 'Uploading ' + file.name + '...';
+        if (status) status.textContent = 'Uploading ' + file.name + '...';
 
         const formData = new FormData();
         formData.append('file', file);
@@ -729,30 +838,33 @@
                 body: formData
             });
             const data = await res.json();
-            status.textContent = 'Attached: ' + data.filename;
+            if (status) status.textContent = 'Attached: ' + data.filename;
             fileInput.value = '';
             await openNote(activeFilename);
             await loadNotes();
         } catch (e) {
-            status.textContent = 'Error: ' + e.message;
+            if (status) status.textContent = 'Error: ' + e.message;
         }
     }
 
     // ---- Create ----
     function openCreateModal() {
         document.getElementById('create-modal').classList.add('open');
-        setTimeout(() => document.getElementById('new-title').focus(), 100);
+        setTimeout(() => {
+            initCreateEditor();
+            document.getElementById('new-title').focus();
+        }, 100);
     }
 
     function closeCreateModal() {
         document.getElementById('create-modal').classList.remove('open');
         document.getElementById('new-title').value = '';
-        document.getElementById('new-content').value = '';
+        if (createQuill) createQuill.setText('');
     }
 
     async function createNote() {
         const title   = document.getElementById('new-title').value.trim();
-        const content = document.getElementById('new-content').value.trim();
+        const content = createQuill ? createQuill.root.innerHTML : '';
         if (!title) { alert('Please enter a title.'); return; }
 
         try {
@@ -777,6 +889,8 @@
             await fetch(`${API}/${filename}`, { method: 'DELETE' });
             activeFilename = null;
             activeNote = null;
+            editQuill = null;
+            if (isMobile()) showList();
             document.getElementById('note-detail').innerHTML = `
                 <div class="empty-state">
                     <div class="big-letter">·</div>
@@ -799,7 +913,6 @@
 
     // ---- Helpers ----
     function mediaUrl(filePath, type) {
-        if (!filePath) return null;
         const filename = filePath.split('/').pop();
         return `${MEDIA}/${type}/${filename}`;
     }
