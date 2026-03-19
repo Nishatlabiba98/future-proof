@@ -22,514 +22,130 @@
             --text-secondary: #6b5340;
             --text-muted: #a0896e;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--warm-cream);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-
-        /* ---- HEADER ---- */
-        header {
-            background: var(--warm-dark);
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: -40px; right: -40px;
-            width: 200px; height: 200px;
-            border-radius: 50%;
-            background: rgba(196, 149, 106, 0.15);
-        }
-
-        .header-left h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            color: var(--warm-tan);
-        }
-
-        .header-left p {
-            font-size: 11px;
-            color: var(--warm-brown);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
+        body { font-family: 'Inter', sans-serif; background: var(--warm-cream); color: var(--text-primary); min-height: 100vh; }
+        header { background: var(--warm-dark); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(196,149,106,0.15); }
+        .header-left h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--warm-tan); }
+        .header-left p { font-size: 11px; color: var(--warm-brown); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
         .header-right { font-size: 13px; color: var(--warm-brown); font-style: italic; }
-
-        /* ---- TOOLBAR ---- */
-        .toolbar {
-            background: var(--warm-tan);
-            padding: 12px 20px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            border-bottom: 1px solid var(--warm-light);
-        }
-
+        .tabs { background: var(--warm-tan); display: flex; border-bottom: 1px solid var(--warm-light); }
+        .tab { padding: 12px 28px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--warm-dark); border-bottom: 2px solid var(--warm-brown); font-weight: 500; }
+        .toolbar { background: var(--warm-tan); padding: 10px 20px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--warm-light); }
         .search-wrap { flex: 1; position: relative; }
-
-        .search-wrap input {
-            width: 100%;
-            padding: 9px 14px 9px 36px;
-            background: var(--warm-cream);
-            border: 1px solid var(--warm-light);
-            border-radius: 30px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-primary);
-            outline: none;
-        }
-
+        .search-wrap input { width: 100%; padding: 8px 14px 8px 34px; background: var(--warm-cream); border: 1px solid var(--warm-light); border-radius: 30px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text-primary); outline: none; }
         .search-wrap input:focus { border-color: var(--warm-brown); }
-
-        .search-wrap::before {
-            content: '⌕';
-            position: absolute;
-            left: 12px; top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-            color: var(--text-muted);
-        }
-
-        .btn-new {
-            padding: 9px 18px;
-            background: var(--warm-dark);
-            color: var(--warm-tan);
-            border: none;
-            border-radius: 30px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
+        .search-wrap::before { content: '⌕'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--text-muted); }
+        .btn-new { padding: 8px 16px; background: var(--warm-dark); color: var(--warm-tan); border: none; border-radius: 30px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
         .btn-new:hover { background: var(--warm-mid); }
-
-        /* ---- LAYOUT ---- */
-        .container {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            height: calc(100vh - 110px);
-        }
-
-        /* ---- NOTE LIST ---- */
-        .note-list {
-            background: var(--warm-tan);
-            border-right: 1px solid var(--warm-light);
-            overflow-y: auto;
-            padding: 8px 0;
-        }
-
-        .note-item {
-            padding: 14px 18px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(196, 149, 106, 0.15);
-            transition: background 0.15s;
-        }
-
+        .container { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 133px); }
+        .container.hidden { display: none; }
+        .note-list { background: var(--warm-tan); border-right: 1px solid var(--warm-light); overflow-y: auto; padding: 8px 0; }
+        .note-item { padding: 14px 18px; cursor: pointer; border-bottom: 1px solid rgba(196,149,106,0.15); transition: background 0.15s; }
         .note-item:hover { background: rgba(255,255,255,0.4); }
-
-        .note-item.active {
-            background: var(--warm-cream);
-            border-right: 3px solid var(--warm-brown);
-        }
-
-        .note-item h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 14px;
-            font-weight: 400;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
+        .note-item.active { background: var(--warm-cream); border-right: 3px solid var(--warm-brown); }
+        .note-item h3 { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 400; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .note-item .date { font-size: 11px; color: var(--text-muted); }
         .note-item .tags { font-size: 11px; color: var(--accent-sage); margin-top: 3px; font-style: italic; }
         .note-item .media-dots { display: flex; gap: 4px; margin-top: 5px; }
         .media-dot { width: 6px; height: 6px; border-radius: 50%; }
-        .dot-image    { background: var(--accent-rose); }
-        .dot-audio    { background: var(--accent-dusty); }
-        .dot-video    { background: var(--accent-sage); }
-        .dot-document { background: var(--warm-brown); }
-        .dot-link     { background: var(--accent-blue); }
-
-        /* ---- NOTE DETAIL ---- */
-        .note-detail {
-            background: var(--warm-cream);
-            padding: 36px 44px;
-            overflow-y: auto;
-        }
-
-        .note-header {
-            border-bottom: 1px solid var(--warm-light);
-            padding-bottom: 18px;
-            margin-bottom: 22px;
-        }
-
-        .note-detail h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 400;
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-
-        .note-meta {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .tag-pill {
-            display: inline-block;
-            padding: 3px 10px;
-            background: var(--warm-tan);
-            color: var(--warm-mid);
-            border-radius: 20px;
-            font-size: 11px;
-            margin: 2px 3px 2px 0;
-            font-style: italic;
-        }
-
-        .note-body {
-            font-size: 15px;
-            line-height: 1.9;
-            font-weight: 300;
-            margin-bottom: 28px;
-        }
-
+        .dot-image { background: var(--accent-rose); } .dot-audio { background: var(--accent-dusty); }
+        .dot-video { background: var(--accent-sage); } .dot-document { background: var(--warm-brown); }
+        .dot-link { background: var(--accent-blue); }
+        .note-detail { background: var(--warm-cream); padding: 36px 44px; overflow-y: auto; }
+        .note-header { border-bottom: 1px solid var(--warm-light); padding-bottom: 18px; margin-bottom: 22px; }
+        .note-detail h2 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 400; margin-bottom: 10px; line-height: 1.3; }
+        .note-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); }
+        .tag-pill { display: inline-block; padding: 3px 10px; background: var(--warm-tan); color: var(--warm-mid); border-radius: 20px; font-size: 11px; margin: 2px 3px 2px 0; font-style: italic; }
+        .note-body { font-size: 15px; line-height: 1.9; font-weight: 300; margin-bottom: 28px; }
         .note-body h1 { font-family: 'Playfair Display', serif; font-size: 22px; margin: 14px 0 6px; }
         .note-body h2 { font-family: 'Playfair Display', serif; font-size: 18px; margin: 12px 0 5px; }
         .note-body ul, .note-body ol { padding-left: 22px; margin: 6px 0; }
         .note-body li { margin: 3px 0; }
         .note-body a { color: var(--accent-blue); }
-
-        /* ---- BACK BUTTON (mobile only) ---- */
-        .btn-back {
-            display: none;
-            padding: 7px 16px;
-            background: transparent;
-            border: 1px solid var(--warm-light);
-            color: var(--text-muted);
-            border-radius: 20px;
-            font-size: 12px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            margin-bottom: 16px;
-        }
-
-        /* ---- NOTE ACTIONS ---- */
-        .note-actions {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            padding: 7px 14px;
-            background: transparent;
-            border-radius: 20px;
-            font-size: 12px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-edit   { border: 1px solid var(--warm-brown); color: var(--warm-brown); }
+        .dataset-panel { display: none; grid-template-columns: 280px 1fr; height: calc(100vh - 133px); }
+        .dataset-panel.active { display: grid; }
+        .dataset-list { background: var(--warm-tan); border-right: 1px solid var(--warm-light); overflow-y: auto; padding: 8px 0; }
+        .dataset-item { padding: 14px 18px; cursor: pointer; border-bottom: 1px solid rgba(196,149,106,0.15); transition: background 0.15s; }
+        .dataset-item:hover { background: rgba(255,255,255,0.4); }
+        .dataset-item.active { background: var(--warm-cream); border-right: 3px solid var(--accent-sage); }
+        .dataset-item h3 { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 400; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .format-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 500; }
+        .badge-csv { background: #e8f4e8; color: #3a7a3a; }
+        .badge-json { background: #e8eef8; color: #3a4a7a; }
+        .dataset-item .row-count { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+        .dataset-detail { background: var(--warm-cream); padding: 36px 44px; overflow-y: auto; }
+        .dataset-detail h2 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 400; margin-bottom: 10px; }
+        .data-table-wrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--warm-light); border-radius: 8px; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { background: var(--warm-tan); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-secondary); border-bottom: 1px solid var(--warm-light); white-space: nowrap; }
+        .data-table td { padding: 9px 14px; border-bottom: 1px solid rgba(196,149,106,0.1); color: var(--text-primary); font-weight: 300; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:nth-child(even) td { background: rgba(240,232,220,0.3); }
+        .json-preview { background: white; border: 1px solid var(--warm-light); border-radius: 8px; padding: 16px; font-family: monospace; font-size: 12px; line-height: 1.6; color: var(--text-secondary); overflow-x: auto; white-space: pre-wrap; margin-top: 16px; max-height: 400px; overflow-y: auto; }
+        .preview-note { font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 10px; }
+        .note-actions { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .btn-action { padding: 7px 14px; background: transparent; border-radius: 20px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+        .btn-edit { border: 1px solid var(--warm-brown); color: var(--warm-brown); }
         .btn-edit:hover { background: var(--warm-brown); color: white; }
         .btn-attach { border: 1px solid var(--accent-sage); color: var(--accent-sage); }
         .btn-attach:hover { background: var(--accent-sage); color: white; }
         .btn-delete { border: 1px solid var(--accent-rose); color: var(--accent-rose); }
         .btn-delete:hover { background: var(--accent-rose); color: white; }
-
         .attach-status { font-size: 12px; color: var(--accent-sage); font-style: italic; margin-bottom: 8px; }
-
-        /* ---- QUILL ---- */
-        .ql-toolbar {
-            background: var(--warm-tan) !important;
-            border: 1px solid var(--warm-light) !important;
-            border-radius: 8px 8px 0 0 !important;
-        }
-
-        .ql-container {
-            background: white !important;
-            border: 1px solid var(--warm-light) !important;
-            border-top: none !important;
-            border-radius: 0 0 8px 8px !important;
-            font-family: 'Inter', sans-serif !important;
-            font-size: 15px !important;
-            min-height: 180px !important;
-        }
-
+        .ql-toolbar { background: var(--warm-tan) !important; border: 1px solid var(--warm-light) !important; border-radius: 8px 8px 0 0 !important; }
+        .ql-container { background: white !important; border: 1px solid var(--warm-light) !important; border-top: none !important; border-radius: 0 0 8px 8px !important; font-family: 'Inter', sans-serif !important; font-size: 15px !important; min-height: 180px !important; }
         .ql-editor { min-height: 180px; line-height: 1.9; color: var(--text-primary); font-weight: 300; }
         .ql-editor.ql-blank::before { color: var(--text-muted) !important; font-style: italic !important; }
-
         .edit-actions { display: flex; gap: 10px; margin-top: 12px; margin-bottom: 20px; }
-
-        .btn-save-edit {
-            padding: 8px 20px;
-            background: var(--warm-dark);
-            color: var(--warm-tan);
-            border: none;
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-
-        .btn-cancel-edit {
-            padding: 8px 16px;
-            background: transparent;
-            border: 1px solid var(--warm-light);
-            color: var(--text-muted);
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-
-        /* ---- MEDIA ---- */
+        .btn-save-edit { padding: 8px 20px; background: var(--warm-dark); color: var(--warm-tan); border: none; border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
+        .btn-cancel-edit { padding: 8px 16px; background: transparent; border: 1px solid var(--warm-light); color: var(--text-muted); border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
         .media-group { margin-top: 20px; }
-
-        .media-group-title {
-            font-size: 10px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid var(--warm-light);
-        }
-
-        .media-image {
-            width: 100%;
-            max-width: 500px;
-            border-radius: 8px;
-            border: 1px solid var(--warm-light);
-            display: block;
-            margin-bottom: 8px;
-        }
-
+        .media-group-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--warm-light); }
+        .media-image { width: 100%; max-width: 500px; border-radius: 8px; border: 1px solid var(--warm-light); display: block; margin-bottom: 8px; }
         .media-audio { width: 100%; max-width: 400px; display: block; margin-bottom: 8px; }
-
-        .media-video {
-            width: 100%;
-            max-width: 500px;
-            border-radius: 8px;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .media-card {
-            background: var(--warm-tan);
-            border: 1px solid var(--warm-light);
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            word-break: break-all;
-        }
-
+        .media-video { width: 100%; max-width: 500px; border-radius: 8px; display: block; margin-bottom: 8px; }
+        .media-card { background: var(--warm-tan); border: 1px solid var(--warm-light); border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 12px; color: var(--text-secondary); word-break: break-all; }
         .media-card a { color: #5a8fc4; text-decoration: none; }
         .media-card a:hover { text-decoration: underline; }
-
-        /* ---- EMPTY STATE ---- */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        .empty-state .big-letter {
-            font-family: 'Playfair Display', serif;
-            font-size: 80px;
-            color: var(--warm-light);
-            line-height: 1;
-            margin-bottom: 16px;
-        }
-
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); text-align: center; }
+        .empty-state .big-letter { font-family: 'Playfair Display', serif; font-size: 80px; color: var(--warm-light); line-height: 1; margin-bottom: 16px; }
         .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; margin-bottom: 8px; }
         .empty-state p { font-size: 13px; font-style: italic; }
         .loading { padding: 30px 20px; text-align: center; color: var(--text-muted); font-style: italic; font-size: 13px; }
-
-        /* ---- MODAL ---- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(42, 31, 20, 0.5);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(42,31,20,0.5); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.open { display: flex; }
-
-        .modal {
-            background: var(--warm-cream);
-            border-radius: 12px;
-            padding: 30px;
-            width: 560px;
-            max-width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
-
+        .modal { background: var(--warm-cream); border-radius: 12px; padding: 30px; width: 560px; max-width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; margin-bottom: 20px; }
         .form-group { margin-bottom: 16px; }
-
-        .form-group label {
-            display: block;
-            font-size: 11px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 11px 13px;
-            background: white;
-            border: 1px solid var(--warm-light);
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-primary);
-            outline: none;
-        }
-
+        .form-group label { display: block; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 11px 13px; background: white; border: 1px solid var(--warm-light); border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; color: var(--text-primary); outline: none; }
         .form-group input:focus { border-color: var(--warm-brown); }
-
         #create-editor-container .ql-toolbar { border-radius: 6px 6px 0 0 !important; }
         #create-editor-container .ql-container { border-radius: 0 0 6px 6px !important; min-height: 120px !important; }
         #create-editor-container .ql-editor { min-height: 120px; }
-
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
-
-        .btn-cancel {
-            padding: 9px 18px;
-            background: transparent;
-            border: 1px solid var(--warm-light);
-            color: var(--text-muted);
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-
-        .btn-save {
-            padding: 9px 22px;
-            background: var(--warm-dark);
-            color: var(--warm-tan);
-            border: none;
-            border-radius: 20px;
-            font-size: 13px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-        }
-
+        .btn-cancel { padding: 9px 18px; background: transparent; border: 1px solid var(--warm-light); color: var(--text-muted); border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
+        .btn-save { padding: 9px 22px; background: var(--warm-dark); color: var(--warm-tan); border: none; border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; }
         .btn-save:hover { background: var(--warm-mid); }
-
-        .divider {
-            text-align: center;
-            color: var(--warm-light);
-            letter-spacing: 8px;
-            font-size: 12px;
-            margin: 20px 0;
-        }
-
-        #file-input { display: none; }
-
-        /* ====================================================
-           MOBILE RESPONSIVE — screens under 700px
-        ==================================================== */
+        .divider { text-align: center; color: var(--warm-light); letter-spacing: 8px; font-size: 12px; margin: 20px 0; }
+        .btn-back { display: none; padding: 7px 16px; background: transparent; border: 1px solid var(--warm-light); color: var(--text-muted); border-radius: 20px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 16px; }
+        #file-input, #dataset-file-input { display: none; }
         @media (max-width: 700px) {
-
             header { padding: 16px 20px; }
             .header-left h1 { font-size: 20px; }
-            .header-left p { display: none; }
-            .header-right { display: none; }
-
-            .toolbar { padding: 10px 16px; }
-
-            /* Stack list and detail on top of each other */
-            .container {
-                grid-template-columns: 1fr;
-                grid-template-rows: 1fr;
-                position: relative;
-            }
-
-            /* List takes full screen by default */
-            .note-list {
-                position: absolute;
-                inset: 0;
-                z-index: 10;
-                transition: transform 0.3s ease;
-            }
-
-            /* When a note is open, slide list off screen */
-            .note-list.hidden {
-                transform: translateX(-100%);
-            }
-
-            /* Detail takes full screen */
-            .note-detail {
-                position: absolute;
-                inset: 0;
-                z-index: 5;
-                padding: 20px;
-                transform: translateX(100%);
-                transition: transform 0.3s ease;
-            }
-
-            /* Slide detail in when active */
-            .note-detail.visible {
-                transform: translateX(0);
-            }
-
-            /* Show back button on mobile */
-            .btn-back {
-                display: inline-block;
-            }
-
-            .note-detail h2 { font-size: 22px; }
-
-            .note-actions { gap: 6px; }
-
-            .btn-action { padding: 6px 12px; font-size: 11px; }
-
-            .media-image { max-width: 100%; }
-            .media-video { max-width: 100%; }
-            .media-audio { max-width: 100%; }
+            .header-left p, .header-right { display: none; }
+            .toolbar { padding: 10px 14px; }
+            .container, .dataset-panel { grid-template-columns: 1fr; position: relative; }
+            .note-list, .dataset-list { position: absolute; inset: 0; z-index: 10; transition: transform 0.3s; }
+            .note-list.hidden, .dataset-list.hidden { transform: translateX(-100%); }
+            .note-detail, .dataset-detail { position: absolute; inset: 0; z-index: 5; padding: 20px; transform: translateX(100%); transition: transform 0.3s; }
+            .note-detail.visible, .dataset-detail.visible { transform: translateX(0); }
+            .btn-back { display: inline-block; }
+            .note-detail h2, .dataset-detail h2 { font-size: 22px; }
+            .media-image, .media-video, .media-audio { max-width: 100%; }
         }
     </style>
 </head>
@@ -543,17 +159,23 @@
     <div class="header-right" id="note-count"></div>
 </header>
 
-<div class="toolbar">
-    <div class="search-wrap">
-        <input type="text" id="search-input" placeholder="Search your notes..." oninput="filterNotes()">
-    </div>
+<div class="tabs">
+    <div class="tab active" id="tab-notes" onclick="switchTab('notes')">Notes</div>
+    <div class="tab" id="tab-datasets" onclick="switchTab('datasets')">Datasets</div>
+</div>
+
+<div class="toolbar" id="toolbar-notes">
+    <div class="search-wrap"><input type="text" id="search-input" placeholder="Search your notes..." oninput="filterNotes()"></div>
     <button class="btn-new" onclick="openCreateModal()">+ New Note</button>
 </div>
 
-<div class="container">
-    <div class="note-list" id="note-list">
-        <div class="loading">Loading your notes...</div>
-    </div>
+<div class="toolbar" id="toolbar-datasets" style="display:none">
+    <div class="search-wrap"><input type="text" id="dataset-search" placeholder="Search datasets..." oninput="filterDatasets()"></div>
+    <button class="btn-new" onclick="document.getElementById('dataset-file-input').click()">+ Upload Dataset</button>
+</div>
+
+<div class="container" id="notes-panel">
+    <div class="note-list" id="note-list"><div class="loading">Loading your notes...</div></div>
     <div class="note-detail" id="note-detail">
         <div class="empty-state">
             <div class="big-letter">C</div>
@@ -563,11 +185,20 @@
     </div>
 </div>
 
-<input type="file" id="file-input"
-       accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt"
-       onchange="uploadMedia()">
+<div class="dataset-panel" id="datasets-panel">
+    <div class="dataset-list" id="dataset-list"><div class="loading">Loading datasets...</div></div>
+    <div class="dataset-detail" id="dataset-detail">
+        <div class="empty-state">
+            <div class="big-letter">D</div>
+            <h3>Select a dataset to preview</h3>
+            <p>Upload a CSV or JSON file to get started</p>
+        </div>
+    </div>
+</div>
 
-<!-- Create Modal -->
+<input type="file" id="file-input" accept="image/*,audio/*,video/*,.pdf,.doc,.docx,.txt" onchange="uploadMedia()">
+<input type="file" id="dataset-file-input" accept=".csv,.json" onchange="uploadDataset()">
+
 <div class="modal-overlay" id="create-modal">
     <div class="modal">
         <h3>A new note</h3>
@@ -577,9 +208,7 @@
         </div>
         <div class="form-group">
             <label>Content</label>
-            <div id="create-editor-container">
-                <div id="create-editor"></div>
-            </div>
+            <div id="create-editor-container"><div id="create-editor"></div></div>
         </div>
         <div class="modal-actions">
             <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
@@ -590,177 +219,68 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script>
-    const API   = 'http://10.0.0.79:8080/api/notes';
-    const MEDIA = 'http://10.0.0.79:8080/api/media';
+    const API    = 'http://10.0.0.79:8080/api/notes';
+    const MEDIA  = 'http://10.0.0.79:8080/api/media';
+    const DS_API = 'http://10.0.0.79:8080/api/datasets';
 
-    let allNotes = [];
-    let activeFilename = null;
-    let activeNote = null;
-    let editMode = false;
-    let editQuill = null;
-    let createQuill = null;
+    let allNotes=[], allDatasets=[], activeFilename=null, activeNote=null;
+    let activeDatasetId=null, editMode=false, editQuill=null, createQuill=null;
 
-    const toolbarOptions = [
-        ['bold', 'italic', 'underline'],
-        [{ 'header': 1 }, { 'header': 2 }],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['link'],
-        ['clean']
-    ];
+    const toolbarOptions = [['bold','italic','underline'],[{'header':1},{'header':2}],[{'list':'ordered'},{'list':'bullet'}],['link'],['clean']];
 
-    // ---- Mobile helpers ----
+    function switchTab(tab) {
+        document.getElementById('tab-notes').classList.toggle('active', tab==='notes');
+        document.getElementById('tab-datasets').classList.toggle('active', tab==='datasets');
+        document.getElementById('toolbar-notes').style.display    = tab==='notes' ? 'flex' : 'none';
+        document.getElementById('toolbar-datasets').style.display = tab==='datasets' ? 'flex' : 'none';
+        document.getElementById('notes-panel').classList.toggle('hidden', tab!=='notes');
+        document.getElementById('datasets-panel').classList.toggle('active', tab==='datasets');
+        if (tab==='datasets' && !allDatasets.length) loadDatasets();
+    }
+
     function isMobile() { return window.innerWidth <= 700; }
+    function showDetail() { if(!isMobile()) return; document.getElementById('note-list').classList.add('hidden'); document.getElementById('note-detail').classList.add('visible'); }
+    function showList()   { if(!isMobile()) return; document.getElementById('note-list').classList.remove('hidden'); document.getElementById('note-detail').classList.remove('visible'); activeFilename=null; renderNoteList(allNotes); }
 
-    function showDetail() {
-        if (isMobile()) {
-            document.getElementById('note-list').classList.add('hidden');
-            document.getElementById('note-detail').classList.add('visible');
-        }
-    }
-
-    function showList() {
-        if (isMobile()) {
-            document.getElementById('note-list').classList.remove('hidden');
-            document.getElementById('note-detail').classList.remove('visible');
-            activeFilename = null;
-            renderNoteList(allNotes);
-        }
-    }
-
-    // ---- Init create editor ----
-    function initCreateEditor() {
-        if (createQuill) return;
-        createQuill = new Quill('#create-editor', {
-            theme: 'snow',
-            placeholder: 'Write something beautiful...',
-            modules: { toolbar: toolbarOptions }
-        });
-    }
-
-    // ---- Load all notes ----
     async function loadNotes() {
         try {
             const res = await fetch(API);
             allNotes = await res.json();
             renderNoteList(allNotes);
             const n = allNotes.length;
-            document.getElementById('note-count').textContent =
-                n + ' ' + (n === 1 ? 'note' : 'notes');
-        } catch (e) {
-            document.getElementById('note-list').innerHTML =
-                '<div class="loading">Could not connect. Is Spring Boot running?</div>';
-        }
+            document.getElementById('note-count').textContent = n+' '+(n===1?'note':'notes');
+        } catch(e) { document.getElementById('note-list').innerHTML='<div class="loading">Could not connect. Is Spring Boot running?</div>'; }
     }
 
-    // ---- Render list ----
     function renderNoteList(notes) {
         const list = document.getElementById('note-list');
-        if (!notes.length) {
-            list.innerHTML = '<div class="loading">No notes yet.</div>';
-            return;
-        }
-
+        if(!notes.length) { list.innerHTML='<div class="loading">No notes yet.</div>'; return; }
         list.innerHTML = notes.map(note => {
             const tags = note.tags ? note.tags.replace(/[\[\]]/g,'').trim() : '';
-            const dots = [
-                note.image    ? '<div class="media-dot dot-image"></div>'    : '',
-                note.audio    ? '<div class="media-dot dot-audio"></div>'    : '',
-                note.video    ? '<div class="media-dot dot-video"></div>'    : '',
-                note.document ? '<div class="media-dot dot-document"></div>' : '',
-                note.link     ? '<div class="media-dot dot-link"></div>'     : '',
-            ].filter(Boolean).join('');
-
-            return `
-                <div class="note-item ${note.filename === activeFilename ? 'active' : ''}"
-                     onclick="openNote('${note.filename}')">
-                    <h3>${note.title || note.filename}</h3>
-                    <div class="date">${formatDate(note.modified || note.created)}</div>
-                    ${tags ? `<div class="tags">${tags}</div>` : ''}
-                    ${dots ? `<div class="media-dots">${dots}</div>` : ''}
-                </div>
-            `;
+            const dots = [note.image?'<div class="media-dot dot-image"></div>':'', note.audio?'<div class="media-dot dot-audio"></div>':'', note.video?'<div class="media-dot dot-video"></div>':'', note.document?'<div class="media-dot dot-document"></div>':'', note.link?'<div class="media-dot dot-link"></div>':''].filter(Boolean).join('');
+            return `<div class="note-item ${note.filename===activeFilename?'active':''}" onclick="openNote('${note.filename}')"><h3>${note.title||note.filename}</h3><div class="date">${formatDate(note.modified||note.created)}</div>${tags?`<div class="tags">${tags}</div>`:''} ${dots?`<div class="media-dots">${dots}</div>`:''}</div>`;
         }).join('');
     }
 
-    // ---- Open note ----
     async function openNote(filename) {
-        activeFilename = filename;
-        editMode = false;
-        editQuill = null;
-        renderNoteList(allNotes);
-        showDetail();
-
-        try {
-            const res = await fetch(`${API}/${filename}`);
-            activeNote = await res.json();
-            renderNoteDetail(activeNote);
-        } catch (e) {
-            document.getElementById('note-detail').innerHTML =
-                '<div class="empty-state"><h3>Could not load note</h3></div>';
-        }
+        activeFilename=filename; editMode=false; editQuill=null;
+        renderNoteList(allNotes); showDetail();
+        try { const res=await fetch(`${API}/${filename}`); activeNote=await res.json(); renderNoteDetail(activeNote); }
+        catch(e) { document.getElementById('note-detail').innerHTML='<div class="empty-state"><h3>Could not load note</h3></div>'; }
     }
 
-    // ---- Render note detail ----
     function renderNoteDetail(note) {
-        const tags = note.tags
-            ? note.tags.replace(/[\[\]]/g,'').split(',')
-                .filter(t => t.trim())
-                .map(t => `<span class="tag-pill">${t.trim()}</span>`)
-                .join('')
-            : '';
-
-        let mediaHTML = '';
-
-        if (note.image) {
-            const url = mediaUrl(note.image, 'image');
-            mediaHTML += `<div class="media-group">
-                <div class="media-group-title">Image</div>
-                <img class="media-image" src="${url}" alt="Attached image"
-                     onerror="this.style.display='none'">
-            </div>`;
-        }
-        if (note.audio) {
-            const url = mediaUrl(note.audio, 'audio');
-            mediaHTML += `<div class="media-group">
-                <div class="media-group-title">Audio</div>
-                <audio class="media-audio" controls src="${url}"></audio>
-            </div>`;
-        }
-        if (note.video) {
-            const url = mediaUrl(note.video, 'video');
-            mediaHTML += `<div class="media-group">
-                <div class="media-group-title">Video</div>
-                <video class="media-video" controls src="${url}"></video>
-            </div>`;
-        }
-        if (note.document) {
-            const url = mediaUrl(note.document, 'document');
-            const fname = note.document.split('/').pop();
-            mediaHTML += `<div class="media-group">
-                <div class="media-group-title">Document</div>
-                <div class="media-card">
-                    <a href="${url}" target="_blank" download="${fname}">📄 ${fname}</a>
-                </div>
-            </div>`;
-        }
-        if (note.link) {
-            mediaHTML += `<div class="media-group">
-                <div class="media-group-title">Link</div>
-                <div class="media-card">
-                    <a href="${note.link}" target="_blank">${note.link}</a>
-                </div>
-            </div>`;
-        }
-
+        const tags = note.tags ? note.tags.replace(/[\[\]]/g,'').split(',').filter(t=>t.trim()).map(t=>`<span class="tag-pill">${t.trim()}</span>`).join('') : '';
+        let mediaHTML='';
+        if(note.image)    mediaHTML+=`<div class="media-group"><div class="media-group-title">Image</div><img class="media-image" src="${mediaUrl(note.image,'image')}" alt="image" onerror="this.style.display='none'"></div>`;
+        if(note.audio)    mediaHTML+=`<div class="media-group"><div class="media-group-title">Audio</div><audio class="media-audio" controls src="${mediaUrl(note.audio,'audio')}"></audio></div>`;
+        if(note.video)    mediaHTML+=`<div class="media-group"><div class="media-group-title">Video</div><video class="media-video" controls src="${mediaUrl(note.video,'video')}"></video></div>`;
+        if(note.document) mediaHTML+=`<div class="media-group"><div class="media-group-title">Document</div><div class="media-card"><a href="${mediaUrl(note.document,'document')}" target="_blank" download="${note.document.split('/').pop()}">📄 ${note.document.split('/').pop()}</a></div></div>`;
+        if(note.link)     mediaHTML+=`<div class="media-group"><div class="media-group-title">Link</div><div class="media-card"><a href="${note.link}" target="_blank">${note.link}</a></div></div>`;
         const bodyHTML = editMode
-            ? `<div id="edit-editor"></div>
-               <div class="edit-actions">
-                   <button class="btn-save-edit" onclick="saveEdit()">Save changes</button>
-                   <button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button>
-               </div>`
-            : `<div class="note-body">${note.content || ''}</div>`;
-
-        document.getElementById('note-detail').innerHTML = `
+            ? `<div id="edit-editor"></div><div class="edit-actions"><button class="btn-save-edit" onclick="saveEdit()">Save changes</button><button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button></div>`
+            : `<div class="note-body">${note.content||''}</div>`;
+        document.getElementById('note-detail').innerHTML=`
             <button class="btn-back" onclick="showList()">← Back</button>
             <div class="note-actions">
                 <button class="btn-action btn-edit" onclick="startEdit()">Edit</button>
@@ -769,161 +289,118 @@
             </div>
             <div id="attach-status" class="attach-status"></div>
             <div class="note-header">
-                <h2>${note.title || note.filename}</h2>
-                <div class="note-meta">
-                    <span>Created ${formatDate(note.created)}</span>
-                    ${note.modified ? `<span>Edited ${formatDate(note.modified)}</span>` : ''}
-                    ${note.author ? `<span>${note.author}</span>` : ''}
-                </div>
-                ${tags ? `<div style="margin-top:10px">${tags}</div>` : ''}
+                <h2>${note.title||note.filename}</h2>
+                <div class="note-meta"><span>Created ${formatDate(note.created)}</span>${note.modified?`<span>Edited ${formatDate(note.modified)}</span>`:''} ${note.author?`<span>${note.author}</span>`:''}</div>
+                ${tags?`<div style="margin-top:10px">${tags}</div>`:''}
             </div>
             ${bodyHTML}
-            ${mediaHTML ? `<div class="divider">· · ·</div>${mediaHTML}` : ''}
-        `;
-
-        if (editMode) {
-            editQuill = new Quill('#edit-editor', {
-                theme: 'snow',
-                placeholder: 'Write something...',
-                modules: { toolbar: toolbarOptions }
-            });
-            if (note.content) editQuill.root.innerHTML = note.content;
-        }
+            ${mediaHTML?`<div class="divider">· · ·</div>${mediaHTML}`:''}`;
+        if(editMode) { editQuill=new Quill('#edit-editor',{theme:'snow',placeholder:'Write something...',modules:{toolbar:toolbarOptions}}); if(note.content) editQuill.root.innerHTML=note.content; }
     }
 
-    // ---- Edit ----
-    function startEdit() { editMode = true; renderNoteDetail(activeNote); }
-
-    function cancelEdit() {
-        editMode = false;
-        editQuill = null;
-        renderNoteDetail(activeNote);
-    }
+    function startEdit()  { editMode=true;  renderNoteDetail(activeNote); }
+    function cancelEdit() { editMode=false; editQuill=null; renderNoteDetail(activeNote); }
 
     async function saveEdit() {
-        if (!editQuill) return;
-        const newContent = editQuill.root.innerHTML;
+        if(!editQuill) return;
         try {
-            await fetch(`${API}/${activeFilename}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: newContent })
-            });
-            editMode = false;
-            editQuill = null;
-            await openNote(activeFilename);
-            await loadNotes();
-        } catch (e) {
-            alert('Error saving: ' + e.message);
-        }
+            await fetch(`${API}/${activeFilename}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:editQuill.root.innerHTML})});
+            editMode=false; editQuill=null; await openNote(activeFilename); await loadNotes();
+        } catch(e) { alert('Error saving: '+e.message); }
     }
 
-    // ---- Attach media ----
     function triggerFileUpload() { document.getElementById('file-input').click(); }
 
     async function uploadMedia() {
-        const fileInput = document.getElementById('file-input');
-        const file = fileInput.files[0];
-        if (!file || !activeFilename) return;
-
-        const status = document.getElementById('attach-status');
-        if (status) status.textContent = 'Uploading ' + file.name + '...';
-
-        const formData = new FormData();
-        formData.append('file', file);
-
+        const fileInput=document.getElementById('file-input'); const file=fileInput.files[0];
+        if(!file||!activeFilename) return;
+        const status=document.getElementById('attach-status');
+        if(status) status.textContent='Uploading '+file.name+'...';
+        const formData=new FormData(); formData.append('file',file);
         try {
-            const res = await fetch(`${API}/${activeFilename}/attach`, {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (status) status.textContent = 'Attached: ' + data.filename;
-            fileInput.value = '';
-            await openNote(activeFilename);
-            await loadNotes();
-        } catch (e) {
-            if (status) status.textContent = 'Error: ' + e.message;
-        }
+            const res=await fetch(`${API}/${activeFilename}/attach`,{method:'POST',body:formData});
+            const data=await res.json(); if(status) status.textContent='Attached: '+data.filename;
+            fileInput.value=''; await openNote(activeFilename); await loadNotes();
+        } catch(e) { if(status) status.textContent='Error: '+e.message; }
     }
 
-    // ---- Create ----
-    function openCreateModal() {
-        document.getElementById('create-modal').classList.add('open');
-        setTimeout(() => {
-            initCreateEditor();
-            document.getElementById('new-title').focus();
-        }, 100);
-    }
-
-    function closeCreateModal() {
-        document.getElementById('create-modal').classList.remove('open');
-        document.getElementById('new-title').value = '';
-        if (createQuill) createQuill.setText('');
-    }
+    function initCreateEditor() { if(createQuill) return; createQuill=new Quill('#create-editor',{theme:'snow',placeholder:'Write something beautiful...',modules:{toolbar:toolbarOptions}}); }
+    function openCreateModal()  { document.getElementById('create-modal').classList.add('open'); setTimeout(()=>{initCreateEditor(); document.getElementById('new-title').focus();},100); }
+    function closeCreateModal() { document.getElementById('create-modal').classList.remove('open'); document.getElementById('new-title').value=''; if(createQuill) createQuill.setText(''); }
 
     async function createNote() {
-        const title   = document.getElementById('new-title').value.trim();
-        const content = createQuill ? createQuill.root.innerHTML : '';
-        if (!title) { alert('Please enter a title.'); return; }
-
-        try {
-            const res = await fetch(API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, content })
-            });
-            const data = await res.json();
-            closeCreateModal();
-            await loadNotes();
-            openNote(data.filename);
-        } catch (e) {
-            alert('Error: ' + e.message);
-        }
+        const title=document.getElementById('new-title').value.trim(); const content=createQuill?createQuill.root.innerHTML:'';
+        if(!title) { alert('Please enter a title.'); return; }
+        try { const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content})}); const data=await res.json(); closeCreateModal(); await loadNotes(); openNote(data.filename); }
+        catch(e) { alert('Error: '+e.message); }
     }
 
-    // ---- Delete ----
     async function deleteNote(filename) {
-        if (!confirm('Delete this note?')) return;
-        try {
-            await fetch(`${API}/${filename}`, { method: 'DELETE' });
-            activeFilename = null;
-            activeNote = null;
-            editQuill = null;
-            if (isMobile()) showList();
-            document.getElementById('note-detail').innerHTML = `
-                <div class="empty-state">
-                    <div class="big-letter">·</div>
-                    <h3>Note deleted</h3>
-                </div>`;
-            await loadNotes();
-        } catch (e) {
-            alert('Error: ' + e.message);
+        if(!confirm('Delete this note?')) return;
+        try { await fetch(`${API}/${filename}`,{method:'DELETE'}); activeFilename=null; activeNote=null; editQuill=null; if(isMobile()) showList(); document.getElementById('note-detail').innerHTML='<div class="empty-state"><div class="big-letter">·</div><h3>Note deleted</h3></div>'; await loadNotes(); }
+        catch(e) { alert('Error: '+e.message); }
+    }
+
+    function filterNotes() { const q=document.getElementById('search-input').value.toLowerCase(); renderNoteList(allNotes.filter(n=>(n.title||'').toLowerCase().includes(q)||(n.tags||'').toLowerCase().includes(q))); }
+
+    // ---- DATASETS ----
+    async function loadDatasets() {
+        try { const res=await fetch(DS_API); allDatasets=await res.json(); renderDatasetList(allDatasets); }
+        catch(e) { document.getElementById('dataset-list').innerHTML='<div class="loading">Could not load datasets.</div>'; }
+    }
+
+    function renderDatasetList(datasets) {
+        const list=document.getElementById('dataset-list');
+        if(!datasets.length) { list.innerHTML='<div class="loading">No datasets yet.<br>Click + Upload Dataset to add one.</div>'; return; }
+        list.innerHTML=datasets.map(ds=>{
+            const fmt=ds.format||(ds.id.endsWith('.csv')?'csv':'json');
+            return `<div class="dataset-item ${ds.id===activeDatasetId?'active':''}" onclick="openDataset('${ds.id}')"><h3>${ds.title||ds.id}</h3><div style="margin-top:4px"><span class="format-badge badge-${fmt}">${fmt.toUpperCase()}</span></div>${ds.rowCount?`<div class="row-count">${ds.rowCount} rows</div>`:''}</div>`;
+        }).join('');
+    }
+
+    async function openDataset(id) {
+        activeDatasetId=id; renderDatasetList(allDatasets);
+        try { const res=await fetch(`${DS_API}/${id}/preview`); const data=await res.json(); renderDatasetDetail(id,data); }
+        catch(e) { document.getElementById('dataset-detail').innerHTML='<div class="empty-state"><h3>Could not load dataset</h3></div>'; }
+    }
+
+    function renderDatasetDetail(id, data) {
+        const ds=allDatasets.find(d=>d.id===id)||{};
+        let contentHTML='';
+        if(data.format==='csv' && data.headers) {
+            const headerRow=data.headers.map(h=>`<th>${h}</th>`).join('');
+            const dataRows=data.rows.map(row=>`<tr>${row.map(cell=>`<td>${cell}</td>`).join('')}</tr>`).join('');
+            contentHTML=`<div class="data-table-wrap"><table class="data-table"><thead><tr>${headerRow}</tr></thead><tbody>${dataRows}</tbody></table></div>${data.totalRows>10?`<p class="preview-note">Showing first 10 of ${data.totalRows} rows</p>`:''}`;
+        } else if(data.format==='json') {
+            contentHTML=`<div class="json-preview">${escapeHtml(data.preview)}</div>`;
         }
+        document.getElementById('dataset-detail').innerHTML=`
+            <div class="note-actions"><button class="btn-action btn-delete" onclick="deleteDataset('${id}')">Delete</button></div>
+            <div class="note-header">
+                <h2>${ds.title||id}</h2>
+                <div class="note-meta">${ds.created?`<span>Uploaded ${formatDate(ds.created)}</span>`:''} ${ds.rowCount?`<span>${ds.rowCount} rows</span>`:''} ${ds.format?`<span>${ds.format.toUpperCase()}</span>`:''}</div>
+            </div>
+            ${contentHTML}`;
     }
 
-    // ---- Search ----
-    function filterNotes() {
-        const q = document.getElementById('search-input').value.toLowerCase();
-        renderNoteList(allNotes.filter(n =>
-            (n.title || '').toLowerCase().includes(q) ||
-            (n.tags  || '').toLowerCase().includes(q)
-        ));
+    async function uploadDataset() {
+        const input=document.getElementById('dataset-file-input'); const file=input.files[0]; if(!file) return;
+        const formData=new FormData(); formData.append('file',file); formData.append('title',file.name.replace(/\.[^/.]+$/,''));
+        try { await fetch(DS_API,{method:'POST',body:formData}); input.value=''; await loadDatasets(); }
+        catch(e) { alert('Error uploading dataset: '+e.message); }
     }
 
-    // ---- Helpers ----
-    function mediaUrl(filePath, type) {
-        const filename = filePath.split('/').pop();
-        return `${MEDIA}/${type}/${filename}`;
+    async function deleteDataset(id) {
+        if(!confirm('Delete this dataset?')) return;
+        try { await fetch(`${DS_API}/${id}`,{method:'DELETE'}); activeDatasetId=null; document.getElementById('dataset-detail').innerHTML='<div class="empty-state"><div class="big-letter">·</div><h3>Dataset deleted</h3></div>'; await loadDatasets(); }
+        catch(e) { alert('Error: '+e.message); }
     }
 
-    function formatDate(str) {
-        if (!str) return '';
-        try {
-            return new Date(str).toLocaleDateString('en-US',
-                { month: 'long', day: 'numeric', year: 'numeric' });
-        } catch { return str; }
-    }
+    function filterDatasets() { const q=document.getElementById('dataset-search').value.toLowerCase(); renderDatasetList(allDatasets.filter(d=>(d.title||'').toLowerCase().includes(q)||(d.id||'').toLowerCase().includes(q))); }
+
+    function mediaUrl(filePath,type) { return `${MEDIA}/${type}/${filePath.split('/').pop()}`; }
+    function formatDate(str) { if(!str) return ''; try { return new Date(str).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); } catch { return str; } }
+    function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     loadNotes();
 </script>
