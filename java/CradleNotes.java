@@ -54,6 +54,10 @@ public class CradleNotes {
                 help    - Display this help information
                 list    - List all notes in the notes
                 read <filename> - Read a specific note
+                create "Title" "Content" - Create a new note with the given title and content
+                delete <filename> - Delete a specific note
+                edit <filename> "New content" - Edit an existing note with new content
+                search <term> - Search for notes containing the term
 
                 Notes directory: %s
                 Setup : 
@@ -300,6 +304,57 @@ author: %s
 }
 }
 
+private static void searchNotes(String[] args) {
+    if (args.length < 2) {
+        System.err.println("Error: please provide a search term.");
+        System.err.println("Usage: java CradleNotes search <term>");
+        return;
+    }
+     String keyword = args[1].toLowerCase();
+        Path notesSubdir = NOTES_DIR.resolve("notes");
+        Path searchDir = Files.exists(notesSubdir) ? notesSubdir : NOTES_DIR;
+
+        List<Path> noteFiles;
+        try (Stream<Path> paths = Files.walk(searchDir, 1)) {
+            noteFiles = paths                    .filter(Files::isRegularFile)
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        return name.endsWith(".md") || name.endsWith(".note") || name.endsWith(".txt");
+                    })
+                    .sorted()
+                    .toList();
+        } catch (IOException e) {
+            System.err.println("Error reading notes directory: " + e.getMessage());
+            return;
+        }
+        if (noteFiles.isEmpty()) {
+            System.out.println("No notes found in " + searchDir);
+            return;
+        }
+        int found = 0;
+        System.out.println("\nSearch results for '" + keyword + "':");
+        System.out.println("=".repeat(60));
+        for (Path noteFile : noteFiles) {
+            try {
+                String fileContent = Files.readString(noteFile).toLowerCase();
+                if (fileContent.contains(keyword)) {
+                    Map<String, String> metadata = parseYamlHeader(noteFile);
+                    String title = metadata.getOrDefault("title", noteFile.getFileName().toString());
+                    String tags = metadata.getOrDefault("tags", "");
+                    System.out.println("\n" + noteFile.getFileName());
+                    System.out.println("  Title: " + title);
+                    if (!tags.isEmpty()) {
+                        System.out.println("  Tags: " + tags);
+                        found++;
+                    }
+
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading note: " + noteFile.getFileName() + " - " + e.getMessage());
+            }
+        }
+    }
+
     /**
      * Parse YAML front matter from a note file.
      * Returns a map with metadata.
@@ -405,6 +460,9 @@ author: %s
 
             case "edit" : {editNote(args);
                 finish(0);}
+
+            case "search" : {searchNotes(args);
+                finish(0);}    
 
             default:
                 System.err.println("Error: Unknown command '" + command + "'");
