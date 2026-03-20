@@ -22,7 +22,12 @@
             --text-secondary: #6b5340;
             --text-muted: #a0896e;
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--warm-cream); color: var(--text-primary); min-height: 100vh; }
+        header { background: var(--warm-dark); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(196,149,106,0.15); pointer-events: none; }
+        .header-left h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--warm-tan); }
+        .header-left p { font-size: 11px; color: var(--warm-brown); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
         /* ---- DARK MODE ---- */
         body.dark {
             --warm-cream: #1a1210;
@@ -31,23 +36,17 @@
             --warm-dark: #0f0a08;
             --warm-mid: #c4956a;
             --warm-light: #3d2e24;
-            --accent-sage: #8a9e7e;
-            --accent-rose: #c4847a;
-            --accent-dusty: #9b8ea0;
-            --accent-blue: #7aade0;
             --text-primary: #f0e8dc;
             --text-secondary: #c4a882;
             --text-muted: #7a6550;
         }
-
         body.dark .note-item:hover { background: rgba(255,255,255,0.05); }
         body.dark .ql-toolbar { background: #2a1f18 !important; }
         body.dark .ql-container { background: #1a1210 !important; }
         body.dark .ql-editor { color: #f0e8dc !important; }
         body.dark .json-preview { background: #2a1f18; color: #c4a882; }
-        body.dark .data-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
 
-        /* ---- THEME TOGGLE BUTTON ---- */
+        /* ---- THEME BUTTON ---- */
         .btn-theme {
             background: transparent;
             border: 1px solid rgba(196,149,106,0.4);
@@ -56,17 +55,12 @@
             padding: 6px 12px;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.2s;
             line-height: 1;
+            position: relative;
+            z-index: 2;
         }
-
         .btn-theme:hover { background: rgba(196,149,106,0.1); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--warm-cream); color: var(--text-primary); min-height: 100vh; }
-        header { background: var(--warm-dark); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
-        header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(196,149,106,0.15); pointer-events: none; }
-        .header-left h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--warm-tan); }
-        .header-left p { font-size: 11px; color: var(--warm-brown); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
         .header-right { font-size: 13px; color: var(--warm-brown); font-style: italic; }
         .tabs { background: var(--warm-tan); display: flex; border-bottom: 1px solid var(--warm-light); }
         .tab { padding: 12px 28px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
@@ -133,6 +127,17 @@
         .btn-attach:hover { background: var(--accent-sage); color: white; }
         .btn-delete { border: 1px solid var(--accent-rose); color: var(--accent-rose); }
         .btn-delete:hover { background: var(--accent-rose); color: white; }
+        .btn-export { border: 1px solid var(--accent-dusty); color: var(--accent-dusty); }
+        .btn-export:hover { background: var(--accent-dusty); color: white; }
+        @media print {
+            header, .tabs, .toolbar, .note-list, .note-actions,
+            .btn-back, .attach-status, .modal-overlay, .dataset-panel
+            { display: none !important; }
+            .container { grid-template-columns: 1fr !important; }
+            .note-detail { padding: 20px !important; }
+            body { background: white !important; }
+        }
+        .btn-delete:hover { background: var(--accent-rose); color: white; }
         .attach-status { font-size: 12px; color: var(--accent-sage); font-style: italic; margin-bottom: 8px; }
         .ql-toolbar { background: var(--warm-tan) !important; border: 1px solid var(--warm-light) !important; border-radius: 8px 8px 0 0 !important; }
         .ql-container { background: white !important; border: 1px solid var(--warm-light) !important; border-top: none !important; border-radius: 0 0 8px 8px !important; font-family: 'Inter', sans-serif !important; font-size: 15px !important; min-height: 180px !important; }
@@ -196,8 +201,12 @@
         <p>your personal notes</p>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
-        <button class="btn-theme" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
-        <div class="header-right" id="note-count"></div>
+        <div style="display:flex; align-items:center; gap:12px; position:relative; z-index:2;">
+            <div class="header-right" id="note-count"></div>
+            <button class="btn-theme" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+            <a href="/logout" style="padding:6px 14px; background:transparent; border:1px solid rgba(196,149,106,0.4); color:#c4956a; border-radius:20px; font-size:12px; font-family:Inter,sans-serif; text-decoration:none; white-space:nowrap;">Sign out</a>
+        </div>
+        <a href="/logout" style="padding:6px 14px; background:transparent; border:1px solid rgba(196,149,106,0.4); color:#c4956a; border-radius:20px; font-size:12px; font-family:Inter,sans-serif; text-decoration:none; white-space:nowrap;">Sign out</a>
     </div>
 </header>
 
@@ -261,9 +270,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
 <script>
-    const API    = 'http://10.0.0.79:8080/api/notes';
-    const MEDIA  = 'http://10.0.0.79:8080/api/media';
-    const DS_API = 'http://10.0.0.79:8080/api/datasets';
+    const API    = '/api/notes';
+    const MEDIA  = '/api/media';
+    const DS_API = '/api/datasets';
+
 
     let allNotes=[], allDatasets=[], activeFilename=null, activeNote=null;
     let activeDatasetId=null, editMode=false, editQuill=null, createQuill=null;
@@ -328,6 +338,7 @@
                 <button class="btn-action btn-edit" onclick="startEdit()">Edit</button>
                 <button class="btn-action btn-attach" onclick="triggerFileUpload()">Attach</button>
                 <button class="btn-action btn-delete" onclick="deleteNote('${note.filename}')">Delete</button>
+                <button class="btn-action btn-export" onclick="window.print()">Export PDF</button>
             </div>
             <div id="attach-status" class="attach-status"></div>
             <div class="note-header">

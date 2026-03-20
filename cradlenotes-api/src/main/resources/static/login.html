@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CradleNotes — Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #faf7f2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-wrap {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #3d2b1f;
+            margin-bottom: 6px;
+        }
+
+        .login-header p {
+            font-size: 12px;
+            color: #a0896e;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .login-card {
+            background: white;
+            border: 1px solid #e8ddd2;
+            border-radius: 12px;
+            padding: 36px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #a0896e;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: #faf7f2;
+            border: 1px solid #e8ddd2;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: #2a1f14;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: #c4956a;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: #3d2b1f;
+            color: #f0e8dc;
+            border: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-login:hover { background: #7a5c44; }
+
+        .error-msg {
+            background: #fdf0ec;
+            border: 1px solid #c4847a;
+            color: #c4847a;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #a0896e;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrap">
+    <div class="login-header">
+        <h1>🪴 CradleNotes</h1>
+        <p>your personal notes</p>
+    </div>
+
+    <div class="login-card">
+        <!-- Show error if login failed -->
+        <div id="error-msg" class="error-msg" style="display:none">
+            Wrong username or password. Try again.
+        </div>
+
+        <form method="post" action="/login">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter your username" autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn-login">Sign in</button>
+        </form>
+    </div>
+
+    <div class="login-footer">
+        Only you can access your notes
+    </div>
+</div>
+
+<script>
+    // Show error message if ?error=true in URL
+    if (window.location.search.includes('error=true')) {
+        document.getElementById('error-msg').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
