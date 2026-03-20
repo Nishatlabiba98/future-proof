@@ -22,10 +22,49 @@
             --text-secondary: #6b5340;
             --text-muted: #a0896e;
         }
+
+        /* ---- DARK MODE ---- */
+        body.dark {
+            --warm-cream: #1a1210;
+            --warm-tan: #2a1f18;
+            --warm-brown: #c4956a;
+            --warm-dark: #0f0a08;
+            --warm-mid: #c4956a;
+            --warm-light: #3d2e24;
+            --accent-sage: #8a9e7e;
+            --accent-rose: #c4847a;
+            --accent-dusty: #9b8ea0;
+            --accent-blue: #7aade0;
+            --text-primary: #f0e8dc;
+            --text-secondary: #c4a882;
+            --text-muted: #7a6550;
+        }
+
+        body.dark .note-item:hover { background: rgba(255,255,255,0.05); }
+        body.dark .ql-toolbar { background: #2a1f18 !important; }
+        body.dark .ql-container { background: #1a1210 !important; }
+        body.dark .ql-editor { color: #f0e8dc !important; }
+        body.dark .json-preview { background: #2a1f18; color: #c4a882; }
+        body.dark .data-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+
+        /* ---- THEME TOGGLE BUTTON ---- */
+        .btn-theme {
+            background: transparent;
+            border: 1px solid rgba(196,149,106,0.4);
+            color: var(--warm-brown);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+
+        .btn-theme:hover { background: rgba(196,149,106,0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--warm-cream); color: var(--text-primary); min-height: 100vh; }
         header { background: var(--warm-dark); padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; }
-        header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(196,149,106,0.15); }
+        header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(196,149,106,0.15); pointer-events: none; }
         .header-left h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--warm-tan); }
         .header-left p { font-size: 11px; color: var(--warm-brown); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
         .header-right { font-size: 13px; color: var(--warm-brown); font-style: italic; }
@@ -156,7 +195,10 @@
         <h1>🪴 CradleNotes</h1>
         <p>your personal notes</p>
     </div>
-    <div class="header-right" id="note-count"></div>
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-theme" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+        <div class="header-right" id="note-count"></div>
+    </div>
 </header>
 
 <div class="tabs">
@@ -401,6 +443,19 @@
     function mediaUrl(filePath,type) { return `${MEDIA}/${type}/${filePath.split('/').pop()}`; }
     function formatDate(str) { if(!str) return ''; try { return new Date(str).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}); } catch { return str; } }
     function escapeHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ---- DARK / LIGHT THEME ----
+    function toggleTheme() {
+        const isDark = document.body.classList.toggle('dark');
+        document.getElementById('theme-toggle').textContent = isDark ? '🌞' : '🌙';
+        localStorage.setItem('cradlenotes-theme', isDark ? 'dark' : 'light');
+    }
+
+    // Apply saved theme on load
+    if (localStorage.getItem('cradlenotes-theme') === 'dark') {
+        document.body.classList.add('dark');
+        document.getElementById('theme-toggle').textContent = '🌞';
+    }
 
     loadNotes();
 </script>
