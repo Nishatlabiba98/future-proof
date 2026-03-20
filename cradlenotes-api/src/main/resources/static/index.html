@@ -371,8 +371,11 @@
         if(status) status.textContent='Uploading '+file.name+'...';
         const formData=new FormData(); formData.append('file',file);
         try {
-            const res=await fetch(`${API}/${activeFilename}/attach`,{method:'POST',body:formData});
-            const data=await res.json(); if(status) status.textContent='Attached: '+data.filename;
+            const res=await fetch(`${API}/${activeFilename}/attach`,{method:'POST',body:formData,credentials:'include'});
+            if(!res.ok) { if(status) status.textContent='Upload failed: '+res.status; return; }
+            const text=await res.text();
+            const data=text ? JSON.parse(text) : {};
+            if(status) status.textContent='Attached: '+(data.filename||file.name);
             fileInput.value=''; await openNote(activeFilename); await loadNotes();
         } catch(e) { if(status) status.textContent='Error: '+e.message; }
     }
