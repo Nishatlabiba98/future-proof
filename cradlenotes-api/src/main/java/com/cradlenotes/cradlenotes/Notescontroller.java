@@ -16,14 +16,7 @@ import java.util.stream.Stream;
 /**
  * NotesController - REST API for CradleNotes
  *
- * Endpoints:
- *   GET    /api/notes                      - list all notes
- *   GET    /api/notes/{file}               - get a specific note
- *   POST   /api/notes                      - create a new note
- *   PUT    /api/notes/{file}               - update a note
- *   DELETE /api/notes/{file}               - delete a note
- *   GET    /api/media/{type}/{file}         - serve a media file
- *   POST   /api/notes/{file}/attach        - upload media to a note
+ * Supports multiple images/media per note.
  */
 @RestController
 @CrossOrigin(origins = "*")
@@ -71,7 +64,7 @@ public class NotesController {
     // GET /api/notes/{filename}
     // -----------------------------------------------
     @GetMapping("/api/notes/{filename}")
-    public Map<String, String> getNote(@PathVariable String filename) throws IOException {
+    public Map<String, Object> getNote(@PathVariable String filename) throws IOException {
         Path filePath = NOTES_DIR.resolve(filename);
 
         if (!Files.exists(filePath)) {
@@ -79,9 +72,21 @@ public class NotesController {
         }
 
         List<String> lines = Files.readAllLines(filePath);
-        Map<String, String> note = parseYamlHeader(filePath);
+        Map<String, Object> note = new LinkedHashMap<>();
+
+        // Parse YAML header — collect multiple values per key
+        Map<String, List<String>> multiMeta = parseYamlHeaderMulti(filePath);
+        for (Map.Entry<String, List<String>> entry : multiMeta.entrySet()) {
+            if (entry.getValue().size() == 1) {
+                note.put(entry.getKey(), entry.getValue().get(0));
+            } else {
+                note.put(entry.getKey(), entry.getValue());
+            }
+        }
+
         note.put("filename", filename);
 
+        // Find content
         int contentStart = 0;
         int dashCount = 0;
         for (int i = 0; i < lines.size(); i++) {
@@ -94,6 +99,7 @@ public class NotesController {
         String content = String.join("\n",
                 lines.subList(contentStart, lines.size())).trim();
         note.put("content", content);
+
         return note;
     }
 
@@ -139,7 +145,6 @@ public class NotesController {
 
     // -----------------------------------------------
     // PUT /api/notes/{filename}
-    // Updates note content
     // -----------------------------------------------
     @PutMapping("/api/notes/{filename}")
     public Map<String, String> updateNote(
@@ -152,29 +157,11 @@ public class NotesController {
         }
 
         String newContent = body.getOrDefault("content", "");
-        Map<String, String> meta = parseYamlHeader(filePath);
+        Map<String, List<String>> meta = parseYamlHeaderMulti(filePath);
         String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
 
-        // Rebuild file keeping all existing metadata including media
-        StringBuilder yaml = new StringBuilder();
-        yaml.append("---\n");
-        yaml.append("title: ").append(meta.getOrDefault("title", "")).append("\n");
-        yaml.append("created: ").append(meta.getOrDefault("created", now)).append("\n");
-        yaml.append("modified: ").append(now).append("\n");
-        yaml.append("tags: ").append(meta.getOrDefault("tags", "[]")).append("\n");
-        yaml.append("author: ").append(meta.getOrDefault("author", "")).append("\n");
-
-        // Keep all media fields
-        for (String key : new String[]{"image", "audio", "video", "document", "link"}) {
-            if (meta.containsKey(key)) {
-                yaml.append(key).append(": ").append(meta.get(key)).append("\n");
-            }
-        }
-
-        yaml.append("---\n\n");
-        yaml.append(newContent).append("\n");
-
-        Files.writeString(filePath, yaml.toString());
+        String fileContent = buildYaml(meta, now) + "\n" + newContent + "\n";
+        Files.writeString(filePath, fileContent);
 
         Map<String, String> response = new HashMap<>();
         response.put("filename", filename);
@@ -201,7 +188,7 @@ public class NotesController {
 
     // -----------------------------------------------
     // POST /api/notes/{filename}/attach
-    // Uploads a media file and attaches it to a note
+    // Supports multiple media files per note
     // -----------------------------------------------
     @PostMapping("/api/notes/{filename}/attach")
     public Map<String, String> attachMedia(
@@ -218,19 +205,15 @@ public class NotesController {
             throw new RuntimeException("No file provided");
         }
 
-        // Detect media type
         String mediaType = detectMediaType(originalName.toLowerCase());
         if (mediaType == null) {
             throw new RuntimeException("Unsupported file type: " + originalName);
         }
 
-        // Create media subfolder
+        // Save file with timestamp
         Path mediaDir = MEDIA_DIR.resolve(mediaType);
-        if (!Files.exists(mediaDir)) {
-            Files.createDirectories(mediaDir);
-        }
+        if (!Files.exists(mediaDir)) Files.createDirectories(mediaDir);
 
-        // Save with timestamp to avoid overwrites
         String ext      = originalName.substring(originalName.lastIndexOf("."));
         String baseName = originalName.substring(0, originalName.lastIndexOf("."));
         String timestamp = LocalDateTime.now().format(FILE_TIMESTAMP);
@@ -239,8 +222,8 @@ public class NotesController {
         Path destFile = mediaDir.resolve(newName);
         Files.write(destFile, file.getBytes());
 
-        // Update note YAML to include new media
-        Map<String, String> meta = parseYamlHeader(notePath);
+        // Load existing YAML and ADD new media entry (keep existing ones)
+        Map<String, List<String>> meta = parseYamlHeaderMulti(notePath);
         List<String> lines = Files.readAllLines(notePath);
 
         int contentStart = 0;
@@ -255,27 +238,15 @@ public class NotesController {
         String content = String.join("\n",
                 lines.subList(contentStart, lines.size())).trim();
 
+        // Add new media to existing list
+        meta.computeIfAbsent(mediaType, k -> new ArrayList<>())
+            .add(destFile.toString());
+
         String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-        StringBuilder yaml = new StringBuilder();
-        yaml.append("---\n");
-        yaml.append("title: ").append(meta.getOrDefault("title", "")).append("\n");
-        yaml.append("created: ").append(meta.getOrDefault("created", now)).append("\n");
-        yaml.append("modified: ").append(now).append("\n");
-        yaml.append("tags: ").append(meta.getOrDefault("tags", "[]")).append("\n");
-        yaml.append("author: ").append(meta.getOrDefault("author", "")).append("\n");
+        meta.put("modified", new ArrayList<>(List.of(now)));
 
-        // Keep existing media, add new one
-        for (String key : new String[]{"image", "audio", "video", "document", "link"}) {
-            if (meta.containsKey(key)) {
-                yaml.append(key).append(": ").append(meta.get(key)).append("\n");
-            }
-        }
-        yaml.append(mediaType).append(": ").append(destFile.toString()).append("\n");
-
-        yaml.append("---\n\n");
-        yaml.append(content).append("\n");
-
-        Files.writeString(notePath, yaml.toString());
+        String fileContent = buildYaml(meta, null) + "\n" + content + "\n";
+        Files.writeString(notePath, fileContent);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "File attached successfully");
@@ -287,7 +258,6 @@ public class NotesController {
 
     // -----------------------------------------------
     // GET /api/media/{type}/{filename}
-    // Serves media files so browser can display them
     // -----------------------------------------------
     @GetMapping("/api/media/{type}/{filename}")
     public ResponseEntity<Resource> serveMedia(
@@ -310,64 +280,106 @@ public class NotesController {
     }
 
     // -----------------------------------------------
-    // DETECT MEDIA TYPE
+    // BUILD YAML STRING from multi-value map
     // -----------------------------------------------
+    private String buildYaml(Map<String, List<String>> meta, String newModified) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("---\n");
 
-    private String detectMediaType(String filename) {
-        if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")
-                || filename.endsWith(".png") || filename.endsWith(".gif")
-                || filename.endsWith(".webp")) return "image";
-        if (filename.endsWith(".mp3") || filename.endsWith(".wav")
-                || filename.endsWith(".m4a") || filename.endsWith(".aac")) return "audio";
-        if (filename.endsWith(".mp4") || filename.endsWith(".mov")
-                || filename.endsWith(".avi") || filename.endsWith(".mkv")) return "video";
-        if (filename.endsWith(".pdf") || filename.endsWith(".doc")
-                || filename.endsWith(".docx") || filename.endsWith(".txt")) return "document";
-        return null;
+        // Standard fields first
+        for (String key : new String[]{"title", "created", "modified", "tags", "author", "status", "priority"}) {
+            List<String> values = meta.get(key);
+            if (values != null) {
+                String val = key.equals("modified") && newModified != null
+                        ? newModified : values.get(0);
+                sb.append(key).append(": ").append(val).append("\n");
+            }
+        }
+
+        // Media fields — each entry on its own line (supports multiple)
+        for (String key : new String[]{"image", "audio", "video", "document", "link"}) {
+            List<String> values = meta.get(key);
+            if (values != null) {
+                for (String val : values) {
+                    sb.append(key).append(": ").append(val).append("\n");
+                }
+            }
+        }
+
+        sb.append("---\n");
+        return sb.toString();
     }
 
     // -----------------------------------------------
-    // YAML PARSER
+    // YAML PARSER - supports multiple values per key
     // -----------------------------------------------
-
-    private Map<String, String> parseYamlHeader(Path filePath) {
-        Map<String, String> metadata = new LinkedHashMap<>();
+    private Map<String, List<String>> parseYamlHeaderMulti(Path filePath) {
+        Map<String, List<String>> metadata = new LinkedHashMap<>();
         try {
             List<String> lines = Files.readAllLines(filePath);
 
-            if (lines.isEmpty() || !lines.get(0).trim().equals("---")) {
-                metadata.put("title", filePath.getFileName().toString());
-                return metadata;
-            }
+            if (lines.isEmpty() || !lines.get(0).trim().equals("---")) return metadata;
 
             int yamlEnd = -1;
             for (int i = 1; i < lines.size(); i++) {
                 if (lines.get(i).trim().equals("---")) { yamlEnd = i; break; }
             }
 
-            if (yamlEnd == -1) {
-                metadata.put("title", filePath.getFileName().toString());
-                return metadata;
-            }
+            if (yamlEnd == -1) return metadata;
 
             for (int i = 1; i < yamlEnd; i++) {
                 String line = lines.get(i).trim();
                 if (line.contains(":")) {
                     String[] parts = line.split(":", 2);
-                    metadata.put(parts[0].trim(), parts[1].trim());
+                    String key   = parts[0].trim();
+                    String value = parts[1].trim();
+                    metadata.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
                 }
             }
 
         } catch (IOException e) {
-            metadata.put("error", e.getMessage());
+            System.err.println("Could not read: " + filePath.getFileName());
+        }
+        return metadata;
+    }
+
+    // Simple single-value YAML parser for list endpoint
+    private Map<String, String> parseYamlHeader(Path filePath) {
+        Map<String, String> metadata = new LinkedHashMap<>();
+        try {
+            Map<String, List<String>> multi = parseYamlHeaderMulti(filePath);
+            for (Map.Entry<String, List<String>> entry : multi.entrySet()) {
+                metadata.put(entry.getKey(), entry.getValue().get(0));
+            }
+        } catch (Exception e) {
+            metadata.put("title", filePath.getFileName().toString());
         }
         return metadata;
     }
 
     // -----------------------------------------------
+    // DETECT MEDIA TYPE
+    // -----------------------------------------------
+    private String detectMediaType(String filename) {
+        if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")
+                || filename.endsWith(".png") || filename.endsWith(".gif")
+                || filename.endsWith(".webp") || filename.endsWith(".heic"))
+            return "image";
+        if (filename.endsWith(".mp3") || filename.endsWith(".wav")
+                || filename.endsWith(".m4a") || filename.endsWith(".aac"))
+            return "audio";
+        if (filename.endsWith(".mp4") || filename.endsWith(".mov")
+                || filename.endsWith(".avi") || filename.endsWith(".mkv"))
+            return "video";
+        if (filename.endsWith(".pdf") || filename.endsWith(".doc")
+                || filename.endsWith(".docx") || filename.endsWith(".txt"))
+            return "document";
+        return null;
+    }
+
+    // -----------------------------------------------
     // HELPER
     // -----------------------------------------------
-
     private void ensureNotesDir() throws IOException {
         if (!Files.exists(NOTES_DIR)) Files.createDirectories(NOTES_DIR);
     }

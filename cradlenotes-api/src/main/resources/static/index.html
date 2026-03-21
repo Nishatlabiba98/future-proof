@@ -324,11 +324,18 @@
     function renderNoteDetail(note) {
         const tags = note.tags ? note.tags.replace(/[\[\]]/g,'').split(',').filter(t=>t.trim()).map(t=>`<span class="tag-pill">${t.trim()}</span>`).join('') : '';
         let mediaHTML='';
-        if(note.image)    mediaHTML+=`<div class="media-group"><div class="media-group-title">Image</div><img class="media-image" src="${mediaUrl(note.image,'image')}" alt="image" onerror="this.style.display='none'"></div>`;
-        if(note.audio)    mediaHTML+=`<div class="media-group"><div class="media-group-title">Audio</div><audio class="media-audio" controls src="${mediaUrl(note.audio,'audio')}"></audio></div>`;
-        if(note.video)    mediaHTML+=`<div class="media-group"><div class="media-group-title">Video</div><video class="media-video" controls src="${mediaUrl(note.video,'video')}"></video></div>`;
-        if(note.document) mediaHTML+=`<div class="media-group"><div class="media-group-title">Document</div><div class="media-card"><a href="${mediaUrl(note.document,'document')}" target="_blank" download="${note.document.split('/').pop()}">📄 ${note.document.split('/').pop()}</a></div></div>`;
-        if(note.link)     mediaHTML+=`<div class="media-group"><div class="media-group-title">Link</div><div class="media-card"><a href="${note.link}" target="_blank">${note.link}</a></div></div>`;
+        // helper — value can be string or array
+        const toArr = v => v ? (Array.isArray(v) ? v : [v]) : [];
+        const imgs = toArr(note.image);
+        const auds = toArr(note.audio);
+        const vids = toArr(note.video);
+        const docs = toArr(note.document);
+        const lnks = toArr(note.link);
+        if(imgs.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Images (${imgs.length})</div>${imgs.map(img=>`<img class="media-image" src="${mediaUrl(img,'image')}" alt="image" onerror="this.style.display='none'" style="margin-bottom:8px">`).join('')}</div>`;
+        if(auds.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Audio</div>${auds.map(a=>`<audio class="media-audio" controls src="${mediaUrl(a,'audio')}"></audio>`).join('')}</div>`;
+        if(vids.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Video</div>${vids.map(v=>`<video class="media-video" controls src="${mediaUrl(v,'video')}"></video>`).join('')}</div>`;
+        if(docs.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Documents</div>${docs.map(d=>`<div class="media-card"><a href="${mediaUrl(d,'document')}" target="_blank" download="${d.split('/').pop()}">📄 ${d.split('/').pop()}</a></div>`).join('')}</div>`;
+        if(lnks.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Links</div>${lnks.map(l=>`<div class="media-card"><a href="${l}" target="_blank">${l}</a></div>`).join('')}</div>`;
         const bodyHTML = editMode
             ? `<div id="edit-editor"></div><div class="edit-actions"><button class="btn-save-edit" onclick="saveEdit()">Save changes</button><button class="btn-cancel-edit" onclick="cancelEdit()">Cancel</button></div>`
             : `<div class="note-body">${note.content||''}</div>`;
@@ -371,11 +378,8 @@
         if(status) status.textContent='Uploading '+file.name+'...';
         const formData=new FormData(); formData.append('file',file);
         try {
-            const res=await fetch(`${API}/${activeFilename}/attach`,{method:'POST',body:formData,credentials:'include'});
-            if(!res.ok) { if(status) status.textContent='Upload failed: '+res.status; return; }
-            const text=await res.text();
-            const data=text ? JSON.parse(text) : {};
-            if(status) status.textContent='Attached: '+(data.filename||file.name);
+            const res=await fetch(`${API}/${activeFilename}/attach`,{method:'POST',body:formData});
+            const data=await res.json(); if(status) status.textContent='Attached: '+data.filename;
             fileInput.value=''; await openNote(activeFilename); await loadNotes();
         } catch(e) { if(status) status.textContent='Error: '+e.message; }
     }
