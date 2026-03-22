@@ -14,10 +14,18 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
- * SecurityConfig - protects CradleNotes with a login page.
+ * SecurityConfig - multi-user authentication for CradleNotes
  *
- * To change your password update the encode("...") value below
- * and restart the server.
+ * To change a password:
+ *   1. Find the user below
+ *   2. Update the encode("...") value
+ *   3. Restart the server
+ *
+ * To add a new user:
+ *   1. Copy any UserDetails block below
+ *   2. Change username and password
+ *   3. Add the new variable to InMemoryUserDetailsManager(...)
+ *   4. Restart the server
  */
 @Configuration
 @EnableWebSecurity
@@ -38,7 +46,6 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                // accept both GET and POST for logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login.html")
                 .invalidateHttpSession(true)
@@ -52,13 +59,35 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails user = User.builder()
+
+        // ---- EDIT PASSWORDS HERE ----
+        // Replace CHANGE_ME with each person's real password
+
+        UserDetails nishat = User.builder()
                 .username("nishat")
-                .password(passwordEncoder().encode("kervon@98"))
+                .password(passwordEncoder().encode("Kervon@98"))
                 .roles("USER")
                 .build();
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails josh = User.builder()
+                .username("josh")
+                .password(passwordEncoder().encode("Kervon@98"))
+                .roles("USER")
+                .build();
+
+        UserDetails alani = User.builder()
+                .username("alani")
+                .password(passwordEncoder().encode("Kervon@98"))
+                .roles("USER")
+                .build();
+
+        UserDetails nishan = User.builder()
+                .username("nishan")
+                .password(passwordEncoder().encode("Kervon@98"))
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(nishat, josh, alani, nishan);
     }
 
     @Bean

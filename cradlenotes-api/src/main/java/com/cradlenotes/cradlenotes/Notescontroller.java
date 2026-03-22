@@ -4,6 +4,8 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -16,16 +18,22 @@ import java.util.stream.Stream;
 /**
  * NotesController - REST API for CradleNotes
  *
+ * Multi-user support: each user gets their own private folder:
+ *   ~/.notes/users/{username}/notes/
+ *   ~/.notes/users/{username}/media/
+ *
  * Supports multiple images/media per note.
+ * Falls back to shared ~/.notes/media/ for backward compatibility.
  */
 @RestController
 @CrossOrigin(origins = "*")
 public class NotesController {
 
-    private static final Path NOTES_DIR =
-            Path.of(System.getProperty("user.home"), ".notes", "notes");
+    private static final Path BASE_DIR =
+            Path.of(System.getProperty("user.home"), ".notes", "users");
 
-    private static final Path MEDIA_DIR =
+    // Shared media folder (backward compat with old notes)
+    private static final Path SHARED_MEDIA_DIR =
             Path.of(System.getProperty("user.home"), ".notes", "media");
 
     private static final DateTimeFormatter TIMESTAMP_FORMAT =
@@ -35,14 +43,45 @@ public class NotesController {
             DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
 
     // -----------------------------------------------
+    // HELPERS
+    // -----------------------------------------------
+
+    private String currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth != null ? auth.getName() : "guest";
+    }
+
+    private Path notesDir() throws IOException {
+        Path dir = BASE_DIR.resolve(currentUser()).resolve("notes");
+        if (!Files.exists(dir)) Files.createDirectories(dir);
+        return dir;
+    }
+
+    private Path mediaDir(String type) throws IOException {
+        Path dir = BASE_DIR.resolve(currentUser()).resolve("media").resolve(type);
+        if (!Files.exists(dir)) Files.createDirectories(dir);
+        return dir;
+    }
+
+    // -----------------------------------------------
+    // GET /api/whoami
+    // -----------------------------------------------
+    @GetMapping("/api/whoami")
+    public Map<String, String> whoami() {
+        Map<String, String> response = new HashMap<>();
+        response.put("username", currentUser());
+        return response;
+    }
+
+    // -----------------------------------------------
     // GET /api/notes
     // -----------------------------------------------
     @GetMapping("/api/notes")
     public List<Map<String, String>> listNotes() throws IOException {
-        ensureNotesDir();
+        Path dir = notesDir();
         List<Map<String, String>> notes = new ArrayList<>();
 
-        try (Stream<Path> paths = Files.walk(NOTES_DIR, 1)) {
+        try (Stream<Path> paths = Files.walk(dir, 1)) {
             paths.filter(Files::isRegularFile)
                  .filter(p -> {
                      String name = p.getFileName().toString();
@@ -65,30 +104,21 @@ public class NotesController {
     // -----------------------------------------------
     @GetMapping("/api/notes/{filename}")
     public Map<String, Object> getNote(@PathVariable String filename) throws IOException {
-        Path filePath = NOTES_DIR.resolve(filename);
-
-        if (!Files.exists(filePath)) {
-            throw new RuntimeException("Note not found: " + filename);
-        }
+        Path filePath = notesDir().resolve(filename);
+        if (!Files.exists(filePath)) throw new RuntimeException("Note not found: " + filename);
 
         List<String> lines = Files.readAllLines(filePath);
         Map<String, Object> note = new LinkedHashMap<>();
 
-        // Parse YAML header — collect multiple values per key
         Map<String, List<String>> multiMeta = parseYamlHeaderMulti(filePath);
         for (Map.Entry<String, List<String>> entry : multiMeta.entrySet()) {
-            if (entry.getValue().size() == 1) {
-                note.put(entry.getKey(), entry.getValue().get(0));
-            } else {
-                note.put(entry.getKey(), entry.getValue());
-            }
+            if (entry.getValue().size() == 1) note.put(entry.getKey(), entry.getValue().get(0));
+            else note.put(entry.getKey(), entry.getValue());
         }
 
         note.put("filename", filename);
 
-        // Find content
-        int contentStart = 0;
-        int dashCount = 0;
+        int contentStart = 0, dashCount = 0;
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).trim().equals("---")) {
                 dashCount++;
@@ -96,10 +126,7 @@ public class NotesController {
             }
         }
 
-        String content = String.join("\n",
-                lines.subList(contentStart, lines.size())).trim();
-        note.put("content", content);
-
+        note.put("content", String.join("\n", lines.subList(contentStart, lines.size())).trim());
         return note;
     }
 
@@ -108,8 +135,6 @@ public class NotesController {
     // -----------------------------------------------
     @PostMapping("/api/notes")
     public Map<String, String> createNote(@RequestBody Map<String, String> body) throws IOException {
-        ensureNotesDir();
-
         String title   = body.getOrDefault("title",   "Untitled");
         String content = body.getOrDefault("content", "");
 
@@ -119,20 +144,20 @@ public class NotesController {
                 .replaceAll("-{2,}", "-");
 
         String filename = safeTitle + ".note";
-        Path filePath = NOTES_DIR.resolve(filename);
-
+        Path filePath = notesDir().resolve(filename);
         String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
+
         String fileContent = String.format("""
                 ---
                 title: %s
                 created: %s
                 modified: %s
                 tags: []
-                author:
+                author: %s
                 ---
 
                 %s
-                """, title, now, now, content);
+                """, title, now, now, currentUser(), content);
 
         Files.writeString(filePath, fileContent);
 
@@ -151,17 +176,14 @@ public class NotesController {
             @PathVariable String filename,
             @RequestBody Map<String, String> body) throws IOException {
 
-        Path filePath = NOTES_DIR.resolve(filename);
-        if (!Files.exists(filePath)) {
-            throw new RuntimeException("Note not found: " + filename);
-        }
+        Path filePath = notesDir().resolve(filename);
+        if (!Files.exists(filePath)) throw new RuntimeException("Note not found: " + filename);
 
         String newContent = body.getOrDefault("content", "");
         Map<String, List<String>> meta = parseYamlHeaderMulti(filePath);
         String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
 
-        String fileContent = buildYaml(meta, now) + "\n" + newContent + "\n";
-        Files.writeString(filePath, fileContent);
+        Files.writeString(filePath, buildYaml(meta, now) + "\n" + newContent + "\n");
 
         Map<String, String> response = new HashMap<>();
         response.put("filename", filename);
@@ -174,10 +196,8 @@ public class NotesController {
     // -----------------------------------------------
     @DeleteMapping("/api/notes/{filename}")
     public Map<String, String> deleteNote(@PathVariable String filename) throws IOException {
-        Path filePath = NOTES_DIR.resolve(filename);
-        if (!Files.exists(filePath)) {
-            throw new RuntimeException("Note not found: " + filename);
-        }
+        Path filePath = notesDir().resolve(filename);
+        if (!Files.exists(filePath)) throw new RuntimeException("Note not found: " + filename);
 
         Files.delete(filePath);
 
@@ -195,58 +215,40 @@ public class NotesController {
             @PathVariable String filename,
             @RequestParam("file") MultipartFile file) throws IOException {
 
-        Path notePath = NOTES_DIR.resolve(filename);
-        if (!Files.exists(notePath)) {
-            throw new RuntimeException("Note not found: " + filename);
-        }
+        Path notePath = notesDir().resolve(filename);
+        if (!Files.exists(notePath)) throw new RuntimeException("Note not found: " + filename);
 
         String originalName = file.getOriginalFilename();
-        if (originalName == null || originalName.isBlank()) {
-            throw new RuntimeException("No file provided");
-        }
+        if (originalName == null || originalName.isBlank()) throw new RuntimeException("No file provided");
 
         String mediaType = detectMediaType(originalName.toLowerCase());
-        if (mediaType == null) {
-            throw new RuntimeException("Unsupported file type: " + originalName);
-        }
+        if (mediaType == null) throw new RuntimeException("Unsupported file type: " + originalName);
 
-        // Save file with timestamp
-        Path mediaDir = MEDIA_DIR.resolve(mediaType);
-        if (!Files.exists(mediaDir)) Files.createDirectories(mediaDir);
-
+        // Save to user's own media folder with timestamp
+        Path mediaDirPath = mediaDir(mediaType);
         String ext      = originalName.substring(originalName.lastIndexOf("."));
         String baseName = originalName.substring(0, originalName.lastIndexOf("."));
-        String timestamp = LocalDateTime.now().format(FILE_TIMESTAMP);
-        String newName  = baseName + "-" + timestamp + ext;
-
-        Path destFile = mediaDir.resolve(newName);
+        String newName  = baseName + "-" + LocalDateTime.now().format(FILE_TIMESTAMP) + ext;
+        Path destFile   = mediaDirPath.resolve(newName);
         Files.write(destFile, file.getBytes());
 
-        // Load existing YAML and ADD new media entry (keep existing ones)
-        Map<String, List<String>> meta = parseYamlHeaderMulti(notePath);
+        // Read existing note content
         List<String> lines = Files.readAllLines(notePath);
-
-        int contentStart = 0;
-        int dashCount = 0;
+        int contentStart = 0, dashCount = 0;
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).trim().equals("---")) {
                 dashCount++;
                 if (dashCount == 2) { contentStart = i + 1; break; }
             }
         }
+        String content = String.join("\n", lines.subList(contentStart, lines.size())).trim();
 
-        String content = String.join("\n",
-                lines.subList(contentStart, lines.size())).trim();
+        // Add new media entry to YAML (preserves existing media)
+        Map<String, List<String>> meta = parseYamlHeaderMulti(notePath);
+        meta.computeIfAbsent(mediaType, k -> new ArrayList<>()).add(destFile.toString());
+        meta.put("modified", new ArrayList<>(List.of(LocalDateTime.now().format(TIMESTAMP_FORMAT))));
 
-        // Add new media to existing list
-        meta.computeIfAbsent(mediaType, k -> new ArrayList<>())
-            .add(destFile.toString());
-
-        String now = LocalDateTime.now().format(TIMESTAMP_FORMAT);
-        meta.put("modified", new ArrayList<>(List.of(now)));
-
-        String fileContent = buildYaml(meta, null) + "\n" + content + "\n";
-        Files.writeString(notePath, fileContent);
+        Files.writeString(notePath, buildYaml(meta, null) + "\n" + content + "\n");
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "File attached successfully");
@@ -258,17 +260,18 @@ public class NotesController {
 
     // -----------------------------------------------
     // GET /api/media/{type}/{filename}
+    // Checks user folder first, then shared folder
     // -----------------------------------------------
     @GetMapping("/api/media/{type}/{filename}")
     public ResponseEntity<Resource> serveMedia(
             @PathVariable String type,
             @PathVariable String filename) throws IOException {
 
-        Path filePath = MEDIA_DIR.resolve(type).resolve(filename);
+        Path userMedia   = BASE_DIR.resolve(currentUser()).resolve("media").resolve(type).resolve(filename);
+        Path sharedMedia = SHARED_MEDIA_DIR.resolve(type).resolve(filename);
+        Path filePath    = Files.exists(userMedia) ? userMedia : sharedMedia;
 
-        if (!Files.exists(filePath)) {
-            return ResponseEntity.notFound().build();
-        }
+        if (!Files.exists(filePath)) return ResponseEntity.notFound().build();
 
         Resource resource = new FileSystemResource(filePath);
         String contentType = Files.probeContentType(filePath);
@@ -280,29 +283,23 @@ public class NotesController {
     }
 
     // -----------------------------------------------
-    // BUILD YAML STRING from multi-value map
+    // BUILD YAML STRING
     // -----------------------------------------------
     private String buildYaml(Map<String, List<String>> meta, String newModified) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("---\n");
+        StringBuilder sb = new StringBuilder("---\n");
 
-        // Standard fields first
         for (String key : new String[]{"title", "created", "modified", "tags", "author", "status", "priority"}) {
             List<String> values = meta.get(key);
             if (values != null) {
-                String val = key.equals("modified") && newModified != null
-                        ? newModified : values.get(0);
+                String val = key.equals("modified") && newModified != null ? newModified : values.get(0);
                 sb.append(key).append(": ").append(val).append("\n");
             }
         }
 
-        // Media fields — each entry on its own line (supports multiple)
         for (String key : new String[]{"image", "audio", "video", "document", "link"}) {
             List<String> values = meta.get(key);
             if (values != null) {
-                for (String val : values) {
-                    sb.append(key).append(": ").append(val).append("\n");
-                }
+                for (String val : values) sb.append(key).append(": ").append(val).append("\n");
             }
         }
 
@@ -317,40 +314,31 @@ public class NotesController {
         Map<String, List<String>> metadata = new LinkedHashMap<>();
         try {
             List<String> lines = Files.readAllLines(filePath);
-
             if (lines.isEmpty() || !lines.get(0).trim().equals("---")) return metadata;
 
             int yamlEnd = -1;
             for (int i = 1; i < lines.size(); i++) {
                 if (lines.get(i).trim().equals("---")) { yamlEnd = i; break; }
             }
-
             if (yamlEnd == -1) return metadata;
 
             for (int i = 1; i < yamlEnd; i++) {
                 String line = lines.get(i).trim();
                 if (line.contains(":")) {
                     String[] parts = line.split(":", 2);
-                    String key   = parts[0].trim();
-                    String value = parts[1].trim();
-                    metadata.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
+                    metadata.computeIfAbsent(parts[0].trim(), k -> new ArrayList<>()).add(parts[1].trim());
                 }
             }
-
         } catch (IOException e) {
             System.err.println("Could not read: " + filePath.getFileName());
         }
         return metadata;
     }
 
-    // Simple single-value YAML parser for list endpoint
     private Map<String, String> parseYamlHeader(Path filePath) {
         Map<String, String> metadata = new LinkedHashMap<>();
         try {
-            Map<String, List<String>> multi = parseYamlHeaderMulti(filePath);
-            for (Map.Entry<String, List<String>> entry : multi.entrySet()) {
-                metadata.put(entry.getKey(), entry.getValue().get(0));
-            }
+            parseYamlHeaderMulti(filePath).forEach((k, v) -> metadata.put(k, v.get(0)));
         } catch (Exception e) {
             metadata.put("title", filePath.getFileName().toString());
         }
@@ -375,12 +363,5 @@ public class NotesController {
                 || filename.endsWith(".docx") || filename.endsWith(".txt"))
             return "document";
         return null;
-    }
-
-    // -----------------------------------------------
-    // HELPER
-    // -----------------------------------------------
-    private void ensureNotesDir() throws IOException {
-        if (!Files.exists(NOTES_DIR)) Files.createDirectories(NOTES_DIR);
     }
 }

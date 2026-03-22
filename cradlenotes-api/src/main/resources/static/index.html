@@ -206,6 +206,20 @@
             .note-detail h2, .dataset-detail h2 { font-size: 22px; }
             .media-image, .media-video, .media-audio { max-width: 100%; }
         }
+        /* ---- DRAWING PAD ---- */
+        .drawpad { display: none; position: fixed; bottom: 80px; right: 280px; background: var(--warm-cream); border: 1px solid var(--warm-light); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 200; overflow: hidden; width: 320px; }
+        .drawpad.open { display: block; }
+        .drawpad-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--warm-tan); border-bottom: 1px solid var(--warm-light); font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+        .drawpad-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
+        .drawpad-toolbar { display: flex; gap: 6px; padding: 8px 10px; background: var(--warm-tan); border-bottom: 1px solid var(--warm-light); align-items: center; flex-wrap: wrap; }
+        .color-swatch { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; flex-shrink: 0; }
+        .color-swatch.active { border-color: var(--warm-dark); }
+        .draw-tool-btn { padding: 4px 10px; background: transparent; border: 1px solid var(--warm-light); border-radius: 12px; font-size: 11px; font-family: 'Inter', sans-serif; cursor: pointer; color: var(--text-muted); }
+        .draw-tool-btn.active { background: var(--warm-dark); color: var(--warm-tan); border-color: var(--warm-dark); }
+        #draw-canvas { display: block; cursor: crosshair; touch-action: none; }
+        .drawpad-footer { display: flex; gap: 6px; padding: 8px 10px; background: var(--warm-tan); border-top: 1px solid var(--warm-light); }
+        .draw-footer-btn { flex: 1; padding: 6px; background: transparent; border: 1px solid var(--warm-light); border-radius: 8px; font-size: 11px; font-family: 'Inter', sans-serif; cursor: pointer; color: var(--text-muted); }
+        .draw-footer-btn.save { background: var(--warm-dark); color: var(--warm-tan); border-color: var(--warm-dark); }
     </style>
 </head>
 <body>
@@ -232,6 +246,7 @@
     <div class="search-wrap"><input type="text" id="search-input" placeholder="Search your notes..." oninput="filterNotes()"></div>
     <button class="btn-new" onclick="openCreateModal()">+ New Note</button>
     <button class="btn-new" onclick="toggleCalculator()" style="background:var(--accent-sage);" title="Calculator">🧮</button>
+    <button class="btn-new" onclick="toggleDrawpad()" style="background:var(--accent-dusty);" title="Drawing Pad">🎨</button>
 </div>
 
 <div class="toolbar" id="toolbar-datasets" style="display:none">
@@ -643,6 +658,166 @@ function showGroceryInterruption(list){const interruption=list.interruptions[Mat
 function renderGroceryOptions(list){const extras=['chips','soda','candy','ice cream','cookies','pizza','chocolate','bacon'].filter(f=>!groceryList.includes(f)).sort(()=>Math.random()-0.5).slice(0,3);const options=[...groceryList,...extras].sort(()=>Math.random()-0.5);const container=document.getElementById('grocery-options');if(!container)return;container.innerHTML=options.map(opt=>`<button onclick="selectGroceryItem('${opt}',${groceryList.includes(opt)})" style="padding:12px 18px;background:var(--warm-tan);border:1px solid var(--warm-light);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;color:var(--text-primary);">${opt}</button>`).join('');container.innerHTML+=`<button onclick="finishGrocery()" style="margin-top:8px;padding:12px 18px;background:var(--warm-dark);color:var(--warm-tan);border:none;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;">Done shopping ✓</button>`;}
 function selectGroceryItem(item,isCorrect){if(groceryRemembered.includes(item))return;groceryRemembered.push(item);document.querySelectorAll('#grocery-options button').forEach(btn=>{if(btn.textContent.trim()===item){btn.style.background=isCorrect?'#e8f5e9':'#ffebee';btn.style.borderColor=isCorrect?'#a5d6a7':'#ef9a9a';btn.style.color=isCorrect?'#2e7d32':'#c62828';btn.innerHTML=(isCorrect?'✓ ':'✗ ')+item;btn.disabled=true;}});}
 function finishGrocery(){const correct=groceryRemembered.filter(item=>groceryList.includes(item)).length;const missed=groceryList.filter(item=>!groceryRemembered.includes(item));const score=Math.round((correct/groceryList.length)*100);gameCard(`<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">${score>=80?'🏆':score>=60?'⭐':'🛒'}</div><h3 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:8px;">${score>=80?'Amazing memory!':score>=60?'Pretty good!':'You forgot a few things...'}</h3><p style="font-size:24px;font-weight:500;margin:16px 0;color:var(--warm-brown);">${correct}/${groceryList.length} items</p>${missed.length?`<p style="color:var(--text-muted);font-style:italic;margin-bottom:8px;">You forgot: ${missed.join(', ')}</p>`:'<p style="color:#2e7d32;margin-bottom:8px;">Perfect list! 🎉</p>'}<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;"><button onclick="groceryRound++;startGroceryRound()" style="padding:10px 20px;background:var(--warm-dark);color:var(--warm-tan);border:none;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;">Next Round</button><button onclick="startGrocery()" style="padding:10px 20px;background:transparent;border:1px solid var(--warm-light);color:var(--text-muted);border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;">Restart</button></div></div>`);}
+</script>
+<!-- Drawing Pad -->
+<div class="drawpad" id="drawpad">
+    <div class="drawpad-header">
+        <span>🎨 Drawing Pad</span>
+        <button class="drawpad-close" onclick="toggleDrawpad()">×</button>
+    </div>
+    <div class="drawpad-toolbar">
+        <div class="color-swatch active" style="background:#2a1f14" onclick="setDrawColor('#2a1f14',this)" title="Dark"></div>
+        <div class="color-swatch" style="background:#c4956a" onclick="setDrawColor('#c4956a',this)" title="Warm Brown"></div>
+        <div class="color-swatch" style="background:#c4847a" onclick="setDrawColor('#c4847a',this)" title="Rose"></div>
+        <div class="color-swatch" style="background:#8a9e7e" onclick="setDrawColor('#8a9e7e',this)" title="Sage"></div>
+        <div class="color-swatch" style="background:#7aade0" onclick="setDrawColor('#7aade0',this)" title="Blue"></div>
+        <div class="color-swatch" style="background:#9b8ea0" onclick="setDrawColor('#9b8ea0',this)" title="Dusty"></div>
+        <div class="color-swatch" style="background:#f0e8dc" onclick="setDrawColor('#f0e8dc',this)" title="Cream"></div>
+        <input type="color" id="custom-color" onchange="setDrawColor(this.value)" style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;padding:0;" title="Custom color">
+        <button class="draw-tool-btn active" id="btn-pen" onclick="setDrawTool('pen')">✏️ Pen</button>
+        <button class="draw-tool-btn" id="btn-eraser" onclick="setDrawTool('eraser')">⬜ Eraser</button>
+        <select id="pixel-size" onchange="setPixelSize(this.value)" style="font-size:11px;border:1px solid var(--warm-light);border-radius:8px;padding:3px 6px;background:var(--warm-cream);color:var(--text-primary);cursor:pointer;">
+            <option value="8">16×16</option>
+            <option value="5" selected>32×32</option>
+            <option value="4">40×40</option>
+        </select>
+    </div>
+    <canvas id="draw-canvas" width="320" height="320"></canvas>
+    <div class="drawpad-footer">
+        <button class="draw-footer-btn" onclick="clearCanvas()">🗑 Clear</button>
+        <button class="draw-footer-btn" onclick="undoDraw()">↩ Undo</button>
+        <button class="draw-footer-btn save" onclick="saveDrawing()">💾 Save to Note</button>
+    </div>
+</div>
+
+<script>
+    // ---- DRAWING PAD ----
+    let drawColor = '#2a1f14';
+    let drawTool = 'pen';
+    let pixelSize = 5;
+    let isDrawing = false;
+    let drawHistory = [];
+    const canvas = document.getElementById('draw-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function initCanvas() {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawGrid();
+    }
+
+    function drawGrid() {
+        ctx.strokeStyle = 'rgba(200,190,180,0.3)';
+        ctx.lineWidth = 0.5;
+        for (let x = 0; x <= canvas.width; x += pixelSize) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y <= canvas.height; y += pixelSize) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+    }
+
+    function toggleDrawpad() {
+        const pad = document.getElementById('drawpad');
+        pad.classList.toggle('open');
+        if (pad.classList.contains('open')) initCanvas();
+    }
+
+    function setDrawColor(color, el) {
+        drawColor = color;
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        if (el) el.classList.add('active');
+        setDrawTool('pen');
+    }
+
+    function setDrawTool(tool) {
+        drawTool = tool;
+        document.getElementById('btn-pen').classList.toggle('active', tool === 'pen');
+        document.getElementById('btn-eraser').classList.toggle('active', tool === 'eraser');
+    }
+
+    function setPixelSize(size) {
+        pixelSize = parseInt(size);
+        saveHistory();
+        initCanvas();
+        ctx.putImageData(drawHistory[drawHistory.length - 1], 0, 0);
+        drawGrid();
+    }
+
+    function getPixelPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        let clientX, clientY;
+        if (e.touches) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+        const x = Math.floor(((clientX - rect.left) * scaleX) / pixelSize) * pixelSize;
+        const y = Math.floor(((clientY - rect.top) * scaleY) / pixelSize) * pixelSize;
+        return { x, y };
+    }
+
+    function paintPixel(e) {
+        const { x, y } = getPixelPos(e);
+        ctx.fillStyle = drawTool === 'eraser' ? '#ffffff' : drawColor;
+        ctx.fillRect(x, y, pixelSize, pixelSize);
+        // redraw grid line on this pixel
+        ctx.strokeStyle = 'rgba(200,190,180,0.3)';
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(x, y, pixelSize, pixelSize);
+    }
+
+    function saveHistory() {
+        drawHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        if (drawHistory.length > 20) drawHistory.shift();
+    }
+
+    function undoDraw() {
+        if (drawHistory.length > 0) {
+            ctx.putImageData(drawHistory.pop(), 0, 0);
+        }
+    }
+
+    function clearCanvas() {
+        saveHistory();
+        initCanvas();
+    }
+
+    async function saveDrawing() {
+        if (!activeFilename) {
+            alert('Open a note first, then save your drawing to it!');
+            return;
+        }
+        saveHistory();
+        canvas.toBlob(async (blob) => {
+            const formData = new FormData();
+            const filename = 'drawing-' + Date.now() + '.png';
+            formData.append('file', blob, filename);
+            try {
+                const res = await fetch(`${API}/${activeFilename}/attach`, { method: 'POST', body: formData });
+                const data = await res.json();
+                alert('Drawing saved to note! 🎨');
+                await openNote(activeFilename);
+            } catch (e) {
+                alert('Could not save: ' + e.message);
+            }
+        }, 'image/png');
+    }
+
+    // Mouse events
+    canvas.addEventListener('mousedown', (e) => { isDrawing = true; saveHistory(); paintPixel(e); });
+    canvas.addEventListener('mousemove', (e) => { if (isDrawing) paintPixel(e); });
+    canvas.addEventListener('mouseup', () => { isDrawing = false; });
+    canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+
+    // Touch events
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; saveHistory(); paintPixel(e); }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (isDrawing) paintPixel(e); }, { passive: false });
+    canvas.addEventListener('touchend', () => { isDrawing = false; });
 </script>
 </body>
 </html>
