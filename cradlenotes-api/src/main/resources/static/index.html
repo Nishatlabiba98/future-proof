@@ -177,7 +177,22 @@
         .divider { text-align: center; color: var(--warm-light); letter-spacing: 8px; font-size: 12px; margin: 20px 0; }
         .btn-back { display: none; padding: 7px 16px; background: transparent; border: 1px solid var(--warm-light); color: var(--text-muted); border-radius: 20px; font-size: 12px; font-family: 'Inter', sans-serif; cursor: pointer; margin-bottom: 16px; }
         #file-input, #dataset-file-input { display: none; }
-        @media (max-width: 700px) {
+        .calculator { display: none; position: fixed; bottom: 80px; right: 24px; width: 240px; background: var(--warm-cream); border: 1px solid var(--warm-light); border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 200; overflow: hidden; }
+        .calculator.open { display: block; }
+        .calc-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--warm-tan); border-bottom: 1px solid var(--warm-light); font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+        .calc-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
+        .calc-display { background: var(--warm-dark); color: var(--warm-tan); padding: 16px; text-align: right; }
+        .calc-expression { font-size: 11px; color: var(--warm-brown); min-height: 16px; margin-bottom: 4px; }
+        .calc-result { font-size: 28px; font-weight: 300; }
+        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--warm-light); }
+        .calc-btn { padding: 14px; background: var(--warm-cream); border: none; font-size: 15px; font-family: 'Inter', sans-serif; cursor: pointer; color: var(--text-primary); transition: background 0.1s; }
+        .calc-btn:hover { background: var(--warm-tan); }
+        .calc-btn.operator { color: var(--warm-brown); font-weight: 500; }
+        .calc-btn.equals { background: var(--warm-brown); color: white; }
+        .calc-btn.equals:hover { background: var(--warm-mid); }
+        .calc-btn.clear { color: var(--accent-rose); }
+        .calc-btn.wide { grid-column: span 2; }
+                @media (max-width: 700px) {
             header { padding: 16px 20px; }
             .header-left h1 { font-size: 20px; }
             .header-left p, .header-right { display: none; }
@@ -200,12 +215,9 @@
         <h1>🪴 CradleNotes</h1>
         <p>your personal notes</p>
     </div>
-    <div style="display:flex; align-items:center; gap:12px;">
-        <div style="display:flex; align-items:center; gap:12px; position:relative; z-index:2;">
-            <div class="header-right" id="note-count"></div>
-            <button class="btn-theme" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
-            <a href="/logout" style="padding:6px 14px; background:transparent; border:1px solid rgba(196,149,106,0.4); color:#c4956a; border-radius:20px; font-size:12px; font-family:Inter,sans-serif; text-decoration:none; white-space:nowrap;">Sign out</a>
-        </div>
+    <div style="display:flex; align-items:center; gap:12px; position:relative; z-index:2;">
+        <div class="header-right" id="note-count"></div>
+        <button class="btn-theme" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
         <a href="/logout" style="padding:6px 14px; background:transparent; border:1px solid rgba(196,149,106,0.4); color:#c4956a; border-radius:20px; font-size:12px; font-family:Inter,sans-serif; text-decoration:none; white-space:nowrap;">Sign out</a>
     </div>
 </header>
@@ -213,11 +225,13 @@
 <div class="tabs">
     <div class="tab active" id="tab-notes" onclick="switchTab('notes')">Notes</div>
     <div class="tab" id="tab-datasets" onclick="switchTab('datasets')">Datasets</div>
+    <div class="tab" id="tab-games" onclick="switchTab('games')">🎮 Games</div>
 </div>
 
 <div class="toolbar" id="toolbar-notes">
     <div class="search-wrap"><input type="text" id="search-input" placeholder="Search your notes..." oninput="filterNotes()"></div>
     <button class="btn-new" onclick="openCreateModal()">+ New Note</button>
+    <button class="btn-new" onclick="toggleCalculator()" style="background:var(--accent-sage);" title="Calculator">🧮</button>
 </div>
 
 <div class="toolbar" id="toolbar-datasets" style="display:none">
@@ -244,6 +258,22 @@
             <h3>Select a dataset to preview</h3>
             <p>Upload a CSV or JSON file to get started</p>
         </div>
+    </div>
+</div>
+
+<!-- Games Panel -->
+<div id="games-panel" style="display:none; height:calc(100vh - 133px); overflow-y:auto; background:var(--warm-cream);">
+    <div style="max-width:700px; margin:0 auto; padding:40px 24px;">
+        <div style="margin-bottom:32px;">
+            <h2 style="font-family:'Playfair Display',serif; font-size:24px; font-weight:400; margin-bottom:8px;">🎮 Mom Games</h2>
+            <p style="font-size:13px; color:var(--text-muted); font-style:italic;">Take a 5 minute break. You earned it.</p>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px;">
+            <button onclick="startGame('morning')" style="padding:12px 20px; background:var(--warm-dark); color:var(--warm-tan); border:none; border-radius:30px; font-size:13px; font-family:'Inter',sans-serif; cursor:pointer;">🍼 Survive the Morning</button>
+            <button onclick="startGame('fivemin')" style="padding:12px 20px; background:var(--accent-sage); color:white; border:none; border-radius:30px; font-size:13px; font-family:'Inter',sans-serif; cursor:pointer;">⏰ 5 More Minutes</button>
+            <button onclick="startGame('grocery')" style="padding:12px 20px; background:var(--warm-brown); color:white; border:none; border-radius:30px; font-size:13px; font-family:'Inter',sans-serif; cursor:pointer;">🛒 Grocery Gauntlet</button>
+        </div>
+        <div id="game-area"></div>
     </div>
 </div>
 
@@ -281,12 +311,15 @@
     const toolbarOptions = [['bold','italic','underline'],[{'header':1},{'header':2}],[{'list':'ordered'},{'list':'bullet'}],['link'],['clean']];
 
     function switchTab(tab) {
+        if (activeFilename) playByeNote();
         document.getElementById('tab-notes').classList.toggle('active', tab==='notes');
         document.getElementById('tab-datasets').classList.toggle('active', tab==='datasets');
+        document.getElementById('tab-games').classList.toggle('active', tab==='games');
         document.getElementById('toolbar-notes').style.display    = tab==='notes' ? 'flex' : 'none';
         document.getElementById('toolbar-datasets').style.display = tab==='datasets' ? 'flex' : 'none';
         document.getElementById('notes-panel').classList.toggle('hidden', tab!=='notes');
         document.getElementById('datasets-panel').classList.toggle('active', tab==='datasets');
+        document.getElementById('games-panel').style.display = tab==='games' ? 'block' : 'none';
         if (tab==='datasets' && !allDatasets.length) loadDatasets();
     }
 
@@ -317,6 +350,7 @@
     async function openNote(filename) {
         activeFilename=filename; editMode=false; editQuill=null;
         renderNoteList(allNotes); showDetail();
+        playOpenNote();
         try { const res=await fetch(`${API}/${filename}`); activeNote=await res.json(); renderNoteDetail(activeNote); }
         catch(e) { document.getElementById('note-detail').innerHTML='<div class="empty-state"><h3>Could not load note</h3></div>'; }
     }
@@ -324,14 +358,9 @@
     function renderNoteDetail(note) {
         const tags = note.tags ? note.tags.replace(/[\[\]]/g,'').split(',').filter(t=>t.trim()).map(t=>`<span class="tag-pill">${t.trim()}</span>`).join('') : '';
         let mediaHTML='';
-        // helper — value can be string or array
-        const toArr = v => v ? (Array.isArray(v) ? v : [v]) : [];
-        const imgs = toArr(note.image);
-        const auds = toArr(note.audio);
-        const vids = toArr(note.video);
-        const docs = toArr(note.document);
-        const lnks = toArr(note.link);
-        if(imgs.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Images (${imgs.length})</div>${imgs.map(img=>`<img class="media-image" src="${mediaUrl(img,'image')}" alt="image" onerror="this.style.display='none'" style="margin-bottom:8px">`).join('')}</div>`;
+        const toArr = v => !v ? [] : Array.isArray(v) ? v : [v];
+        const imgs=toArr(note.image),auds=toArr(note.audio),vids=toArr(note.video),docs=toArr(note.document),lnks=toArr(note.link);
+        if(imgs.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Images</div>${imgs.map(i=>`<img class="media-image" src="${mediaUrl(i,'image')}" alt="image" style="margin-bottom:8px" onerror="this.style.display='none'">`).join('')}</div>`;
         if(auds.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Audio</div>${auds.map(a=>`<audio class="media-audio" controls src="${mediaUrl(a,'audio')}"></audio>`).join('')}</div>`;
         if(vids.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Video</div>${vids.map(v=>`<video class="media-video" controls src="${mediaUrl(v,'video')}"></video>`).join('')}</div>`;
         if(docs.length) mediaHTML+=`<div class="media-group"><div class="media-group-title">Documents</div>${docs.map(d=>`<div class="media-card"><a href="${mediaUrl(d,'document')}" target="_blank" download="${d.split('/').pop()}">📄 ${d.split('/').pop()}</a></div>`).join('')}</div>`;
@@ -475,7 +504,145 @@
         document.getElementById('theme-toggle').textContent = '🌞';
     }
 
+    // ---- SOUNDS ----
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playOpenNote() {
+        // Sweet little chime going up — like a wind chime
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.12);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.12);
+            gain.gain.linearRampToValueAtTime(0.18, audioCtx.currentTime + i * 0.12 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.12 + 0.5);
+            osc.start(audioCtx.currentTime + i * 0.12);
+            osc.stop(audioCtx.currentTime + i * 0.12 + 0.5);
+        });
+    }
+
+    function playByeNote() {
+        // Sweet descending tone — like a gentle goodbye
+        const notes = [783.99, 659.25, 523.25]; // G5 E5 C5
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.15);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.15);
+            gain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + i * 0.15 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.15 + 0.4);
+            osc.start(audioCtx.currentTime + i * 0.15);
+            osc.stop(audioCtx.currentTime + i * 0.15 + 0.4);
+        });
+    }
+
     loadNotes();
+</script>
+<!-- Calculator -->
+<div class="calculator" id="calculator">
+    <div class="calc-header"><span>🧮 Calculator</span><button class="calc-close" onclick="toggleCalculator()">×</button></div>
+    <div class="calc-display">
+        <div class="calc-expression" id="calc-expression"></div>
+        <div class="calc-result" id="calc-result">0</div>
+    </div>
+    <div class="calc-buttons">
+        <button class="calc-btn clear" onclick="calcClear()">C</button>
+        <button class="calc-btn operator" onclick="calcSign()">+/-</button>
+        <button class="calc-btn operator" onclick="calcPercent()">%</button>
+        <button class="calc-btn operator" onclick="calcOp('/')">÷</button>
+        <button class="calc-btn" onclick="calcNum('7')">7</button>
+        <button class="calc-btn" onclick="calcNum('8')">8</button>
+        <button class="calc-btn" onclick="calcNum('9')">9</button>
+        <button class="calc-btn operator" onclick="calcOp('*')">×</button>
+        <button class="calc-btn" onclick="calcNum('4')">4</button>
+        <button class="calc-btn" onclick="calcNum('5')">5</button>
+        <button class="calc-btn" onclick="calcNum('6')">6</button>
+        <button class="calc-btn operator" onclick="calcOp('-')">−</button>
+        <button class="calc-btn" onclick="calcNum('1')">1</button>
+        <button class="calc-btn" onclick="calcNum('2')">2</button>
+        <button class="calc-btn" onclick="calcNum('3')">3</button>
+        <button class="calc-btn operator" onclick="calcOp('+')">+</button>
+        <button class="calc-btn wide" onclick="calcNum('0')">0</button>
+        <button class="calc-btn" onclick="calcDecimal()">.</button>
+        <button class="calc-btn equals" onclick="calcEquals()">=</button>
+    </div>
+</div>
+<script>
+    let calcCurrent='0',calcPrev='',calcOperator=null,calcNewNum=false;
+    function toggleCalculator(){document.getElementById('calculator').classList.toggle('open');}
+    function updateDisplay(){const d=parseFloat(calcCurrent);document.getElementById('calc-result').textContent=isNaN(d)?'Error':d.toLocaleString('en-US',{maximumFractionDigits:8});document.getElementById('calc-expression').textContent=calcPrev&&calcOperator?calcPrev+' '+calcOperator:'';}
+    function calcNum(n){if(calcNewNum){calcCurrent=n;calcNewNum=false;}else{calcCurrent=calcCurrent==='0'?n:calcCurrent+n;}updateDisplay();}
+    function calcDecimal(){if(calcNewNum){calcCurrent='0.';calcNewNum=false;}else if(!calcCurrent.includes('.')){calcCurrent+='.';}updateDisplay();}
+    function calcOp(op){if(calcPrev&&calcOperator&&!calcNewNum)calcEquals();calcPrev=calcCurrent;calcOperator=op;calcNewNum=true;updateDisplay();}
+    function calcEquals(){if(!calcOperator||!calcPrev)return;const a=parseFloat(calcPrev),b=parseFloat(calcCurrent);let r;if(calcOperator==='+')r=a+b;else if(calcOperator==='-')r=a-b;else if(calcOperator==='*')r=a*b;else if(calcOperator==='/')r=b!==0?a/b:'Error';calcCurrent=r.toString();calcPrev='';calcOperator=null;calcNewNum=true;updateDisplay();}
+    function calcClear(){calcCurrent='0';calcPrev='';calcOperator=null;calcNewNum=false;updateDisplay();}
+    function calcSign(){calcCurrent=(parseFloat(calcCurrent)*-1).toString();updateDisplay();}
+    function calcPercent(){calcCurrent=(parseFloat(calcCurrent)/100).toString();updateDisplay();}
+</script>
+<script>
+// ================================================
+// GAMES
+// ================================================
+function gameArea() { return document.getElementById('game-area'); }
+function gameCard(html) { gameArea().innerHTML = `<div style="background:white; border:1px solid var(--warm-light); border-radius:12px; padding:28px;">${html}</div>`; }
+function startGame(id) { if(id==='morning')startMorning(); else if(id==='fivemin')startFiveMin(); else if(id==='grocery')startGrocery(); }
+
+// GAME 1: SURVIVE THE MORNING
+const morningStory = {
+    start: { text: "It's 6:45am. School starts at 8. You hear crying from the kids' room. Your energy: ⚡⚡⚡⚡⚡", choices: [{ text: "Pretend to be asleep 😴", next: 'pretend' },{ text: "Nudge your partner 👈", next: 'nudge' },{ text: "Get up (lose 1 energy) ☕", next: 'getup', energy: -1 }] },
+    pretend: { text: "Smart move. But now it's 7:10am and BOTH kids are crying. 50 minutes left.", choices: [{ text: "Rush to kitchen 🍳", next: 'breakfast', energy: -1 },{ text: "Send them to watch TV 📺", next: 'tv' }] },
+    nudge: { text: "Your partner grunts and rolls over. Classic. 7:00am. 60 minutes left.", choices: [{ text: "Make breakfast 🍳", next: 'breakfast' },{ text: "Wake kids up first 🔔", next: 'wakekids' }] },
+    getup: { text: "You're up! Kids still in bed. 6:50am. 70 minutes. Rare win!", choices: [{ text: "Make a proper breakfast 🥞", next: 'goodbreakfast', energy: 1 },{ text: "Pack bags first 🎒", next: 'bags' }] },
+    tv: { text: "They're watching cartoons. 45 minutes. But nobody is dressed or fed...", choices: [{ text: "Make instant oatmeal ⏱️", next: 'breakfast' },{ text: "Yell GET DRESSED! from kitchen 📢", next: 'yell', energy: -1 }] },
+    wakekids: { text: "Kids are up but cranky. 55 minutes left.", choices: [{ text: "Bribe them with pancakes 🥞", next: 'goodbreakfast', energy: -1 },{ text: "Cereal it is 🥣", next: 'breakfast' }] },
+    breakfast: { text: "Breakfast done! But someone spilled OJ on their shirt. 35 minutes left.", choices: [{ text: "Change their shirt 👕", next: 'change' },{ text: "Dab it and hope for the best 🤷", next: 'dab' }] },
+    goodbreakfast: { text: "A proper breakfast! Kids are happy. 40 minutes left.", choices: [{ text: "Pack bags together 🎒", next: 'bags', energy: 1 },{ text: "Sign the permission slip 📝", next: 'slip' }] },
+    bags: { text: "Bags packed! But where are the shoes? NOBODY CAN FIND THE SHOES. 20 minutes.", choices: [{ text: "Check under the couch 🛋️", next: 'foundshoes' },{ text: "Send them in socks 🧦", next: 'socks', energy: -1 }] },
+    yell: { text: "They got dressed... in costumes. One is a dinosaur. 30 minutes left.", choices: [{ text: "Make them change 🦖→👕", next: 'change', energy: -1 },{ text: "Let the dinosaur go to school 🦖", next: 'dinosaur', energy: 1 }] },
+    change: { text: "Fresh shirt! Now bags need packing. 25 minutes left.", choices: [{ text: "Pack the bags! 🎒", next: 'bags' }] },
+    dab: { text: "Good enough. Teacher will understand. 35 minutes left.", choices: [{ text: "Pack the bags! 🎒", next: 'bags' }] },
+    slip: { text: "Found the permission slip behind the fridge! Signed! 30 minutes left.", choices: [{ text: "Find the shoes! 👟", next: 'foundshoes' }] },
+    foundshoes: { text: "SHOES FOUND. Under the couch, obviously. You made it with 5 minutes to spare! 🎉", choices: [{ text: "Play again 🔄", next: 'start' }], win: true },
+    socks: { text: "Socks it is. You made it! Teacher will send an email later but... you made it! 🎉", choices: [{ text: "Play again 🔄", next: 'start' }], win: true },
+    dinosaur: { text: "The dinosaur went to school. You got a call from the teacher. Worth it. 🦖🎉", choices: [{ text: "Play again 🔄", next: 'start' }], win: true }
+};
+let morningEnergy=5, morningState='start';
+function startMorning(){ morningEnergy=5; morningState='start'; renderMorning(); }
+function renderMorning(){
+    const scene=morningStory[morningState];
+    const bar='⚡'.repeat(Math.max(0,morningEnergy))+'🪫'.repeat(Math.max(0,5-morningEnergy));
+    gameCard(`<div style="font-family:'Playfair Display',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">🍼 Survive the Morning</div><div style="font-size:12px;margin-bottom:12px;">Energy: ${bar}</div><p style="font-size:15px;line-height:1.8;margin-bottom:24px;">${scene.text}</p><div style="display:flex;flex-direction:column;gap:10px;">${scene.choices.map(c=>`<button onclick="chooseMorning('${c.next}',${c.energy||0})" style="padding:12px 18px;background:var(--warm-tan);border:1px solid var(--warm-light);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;color:var(--text-primary);">${c.text}</button>`).join('')}</div>`);
+}
+function chooseMorning(next,energy){
+    morningEnergy=Math.min(5,Math.max(0,morningEnergy+energy));
+    if(morningEnergy<=0){gameCard(`<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">😩</div><h3 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:8px;">You ran out of energy!</h3><p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">The kids were late. Tomorrow will be better.</p><button onclick="startMorning()" style="padding:10px 24px;background:var(--warm-dark);color:var(--warm-tan);border:none;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;">Try Again</button></div>`);return;}
+    morningState=next; renderMorning();
+}
+
+// GAME 2: 5 MORE MINUTES
+let fiveMinTasks=[],fiveMinTime=20,fiveMinScore=0,fiveMinTimer=null;
+const allTasks=[{text:"Pack lunch boxes 🥪",time:3,points:30},{text:"Sign permission slip 📝",time:1,points:20},{text:"Find missing shoe 👟",time:4,points:40},{text:"Make breakfast 🥣",time:5,points:50},{text:"Brush kids' hair 💇",time:2,points:25},{text:"Feed the dog 🐕",time:2,points:20},{text:"Check school bag 🎒",time:2,points:25},{text:"Send that email 📧",time:3,points:30},{text:"Find the car keys 🔑",time:3,points:35},{text:"Water the plant 🌱",time:1,points:10}];
+function startFiveMin(){fiveMinTime=20;fiveMinScore=0;fiveMinTasks=[...allTasks].sort(()=>Math.random()-0.5).slice(0,5);clearInterval(fiveMinTimer);renderFiveMin();fiveMinTimer=setInterval(()=>{fiveMinTime--;if(fiveMinTime<=0){clearInterval(fiveMinTimer);endFiveMin();}else{const el=document.getElementById('fivemin-timer');if(el){el.textContent=fiveMinTime+'s';el.style.color=fiveMinTime<=5?'#c4847a':'var(--text-primary)';}}},1000);}
+function renderFiveMin(){gameCard(`<div style="font-family:'Playfair Display',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">⏰ 5 More Minutes</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><div style="font-size:13px;color:var(--text-muted);">Complete tasks before time runs out!</div><div style="display:flex;gap:16px;font-size:14px;font-weight:500;"><span>⏱ <span id="fivemin-timer">${fiveMinTime}s</span></span><span>⭐ <span id="fivemin-score">${fiveMinScore}</span></span></div></div><div id="fivemin-tasks" style="display:flex;flex-direction:column;gap:8px;">${fiveMinTasks.map((t,i)=>`<button id="task-${i}" onclick="completeTask(${i})" style="padding:14px 18px;background:var(--warm-tan);border:1px solid var(--warm-light);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;color:var(--text-primary);"><span>${t.text}</span><span style="font-size:12px;color:var(--text-muted);">⏱${t.time}s • +${t.points}pts</span></button>`).join('')}</div>`);}
+function completeTask(i){const btn=document.getElementById('task-'+i);if(!btn||btn.disabled)return;const task=fiveMinTasks[i];fiveMinTime=Math.max(0,fiveMinTime-task.time);fiveMinScore+=task.points;btn.disabled=true;btn.style.background='#e8f5e9';btn.style.borderColor='#a5d6a7';btn.style.color='#2e7d32';btn.innerHTML=`<span>✓ ${task.text}</span><span style="font-size:12px;color:#2e7d32;">+${task.points}pts</span>`;document.getElementById('fivemin-score').textContent=fiveMinScore;document.getElementById('fivemin-timer').textContent=fiveMinTime+'s';if(fiveMinTasks.every((t,idx)=>document.getElementById('task-'+idx)?.disabled)){clearInterval(fiveMinTimer);setTimeout(endFiveMin,500);}}
+function endFiveMin(){clearInterval(fiveMinTimer);const remaining=fiveMinTasks.filter((t,i)=>!document.getElementById('task-'+i)?.disabled).length;const msg=remaining===0?"Perfect morning! You're a legend! 🏆":fiveMinScore>=100?"Great job! Only a few things left. 🌟":"Not bad! Tomorrow you'll get them all. ☀️";gameCard(`<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">${remaining===0?'🏆':'⭐'}</div><h3 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:8px;">${msg}</h3><p style="font-size:24px;font-weight:500;margin:16px 0;color:var(--warm-brown);">${fiveMinScore} points</p><p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">${remaining>0?remaining+' task(s) left undone':'All tasks complete!'}</p><button onclick="startFiveMin()" style="padding:10px 24px;background:var(--warm-dark);color:var(--warm-tan);border:none;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;">Play Again</button></div>`);}
+
+// GAME 3: GROCERY GAUNTLET
+const groceryLists=[{items:['milk','eggs','bread','butter','cheese'],interruptions:["Kid: MOM CAN I GET THIS? 🍬","Phone rings 📱","Kid disappears 😱","Cart wheel breaks 🛒"]},{items:['apples','chicken','pasta','tomatoes','yogurt'],interruptions:["Someone needs the bathroom 🚽","Kid knocks display over 😬","You see a friend 👋","Card declined 💳"]},{items:['bananas','juice','cereal','coffee','snacks'],interruptions:["Kid is crying 😭","Forgot your list 📝","Wrong aisle again 🔄","Phone at 2% 🔋"]}];
+let groceryList=[],groceryRemembered=[],groceryTimer=null,groceryTime=0,groceryRound=0;
+function startGrocery(){groceryRound=0;startGroceryRound();}
+function startGroceryRound(){const list=groceryLists[groceryRound%groceryLists.length];groceryList=[...list.items];groceryRemembered=[];groceryTime=5;clearInterval(groceryTimer);gameCard(`<div style="font-family:'Playfair Display',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">🛒 Grocery Gauntlet — Round ${groceryRound+1}</div><p style="font-size:15px;line-height:1.8;margin-bottom:16px;">Memorize your shopping list! You have <strong id="grocery-timer">5</strong> seconds...</p><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">${groceryList.map(item=>`<span style="padding:8px 16px;background:var(--warm-tan);border:1px solid var(--warm-light);border-radius:20px;font-size:14px;">${item}</span>`).join('')}</div><p style="font-size:12px;color:var(--text-muted);font-style:italic;">Then an interruption will happen... can you still remember?</p>`);groceryTimer=setInterval(()=>{groceryTime--;const el=document.getElementById('grocery-timer');if(el)el.textContent=groceryTime;if(groceryTime<=0){clearInterval(groceryTimer);showGroceryInterruption(list);}},1000);}
+function showGroceryInterruption(list){const interruption=list.interruptions[Math.floor(Math.random()*list.interruptions.length)];gameCard(`<div style="font-family:'Playfair Display',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:16px;">🛒 Grocery Gauntlet</div><div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;"><div style="font-size:32px;margin-bottom:8px;">😱</div><p style="font-size:16px;font-weight:500;color:#e65100;">${interruption}</p></div><p style="font-size:15px;margin-bottom:20px;">Now... what was on your list?</p><div id="grocery-options" style="display:flex;flex-direction:column;gap:8px;"></div>`);renderGroceryOptions(list);}
+function renderGroceryOptions(list){const extras=['chips','soda','candy','ice cream','cookies','pizza','chocolate','bacon'].filter(f=>!groceryList.includes(f)).sort(()=>Math.random()-0.5).slice(0,3);const options=[...groceryList,...extras].sort(()=>Math.random()-0.5);const container=document.getElementById('grocery-options');if(!container)return;container.innerHTML=options.map(opt=>`<button onclick="selectGroceryItem('${opt}',${groceryList.includes(opt)})" style="padding:12px 18px;background:var(--warm-tan);border:1px solid var(--warm-light);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;text-align:left;color:var(--text-primary);">${opt}</button>`).join('');container.innerHTML+=`<button onclick="finishGrocery()" style="margin-top:8px;padding:12px 18px;background:var(--warm-dark);color:var(--warm-tan);border:none;border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;cursor:pointer;">Done shopping ✓</button>`;}
+function selectGroceryItem(item,isCorrect){if(groceryRemembered.includes(item))return;groceryRemembered.push(item);document.querySelectorAll('#grocery-options button').forEach(btn=>{if(btn.textContent.trim()===item){btn.style.background=isCorrect?'#e8f5e9':'#ffebee';btn.style.borderColor=isCorrect?'#a5d6a7':'#ef9a9a';btn.style.color=isCorrect?'#2e7d32':'#c62828';btn.innerHTML=(isCorrect?'✓ ':'✗ ')+item;btn.disabled=true;}});}
+function finishGrocery(){const correct=groceryRemembered.filter(item=>groceryList.includes(item)).length;const missed=groceryList.filter(item=>!groceryRemembered.includes(item));const score=Math.round((correct/groceryList.length)*100);gameCard(`<div style="text-align:center;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">${score>=80?'🏆':score>=60?'⭐':'🛒'}</div><h3 style="font-family:'Playfair Display',serif;font-weight:400;margin-bottom:8px;">${score>=80?'Amazing memory!':score>=60?'Pretty good!':'You forgot a few things...'}</h3><p style="font-size:24px;font-weight:500;margin:16px 0;color:var(--warm-brown);">${correct}/${groceryList.length} items</p>${missed.length?`<p style="color:var(--text-muted);font-style:italic;margin-bottom:8px;">You forgot: ${missed.join(', ')}</p>`:'<p style="color:#2e7d32;margin-bottom:8px;">Perfect list! 🎉</p>'}<div style="display:flex;gap:10px;justify-content:center;margin-top:20px;"><button onclick="groceryRound++;startGroceryRound()" style="padding:10px 20px;background:var(--warm-dark);color:var(--warm-tan);border:none;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;">Next Round</button><button onclick="startGrocery()" style="padding:10px 20px;background:transparent;border:1px solid var(--warm-light);color:var(--text-muted);border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;">Restart</button></div></div>`);}
 </script>
 </body>
 </html>
